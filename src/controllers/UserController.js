@@ -35,5 +35,21 @@ module.exports = {
         await User.findByIdAndRemove(req.params.id);
 
         res.send();
+    },
+
+    async login(req, res) {
+        try {
+            var user = await User.findOne({ username: req.body.username });
+            if(!user) {
+                return res.status(400).send({ message: "The username does not exist" });
+            }
+            if(!Bcrypt.compareSync(req.body.password, user.password)) {
+                return res.status(400).send({ message: "The password is invalid" });
+            }
+            res.send({ message: "The username and password combination is correct!" });
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error);
+        }
     }
 }
