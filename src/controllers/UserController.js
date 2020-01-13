@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Bcrypt = require("bcryptjs");
+const jwt = require('jsonwebtoken');
 
 const User = mongoose.model('User');
 
@@ -26,7 +27,7 @@ module.exports = {
     async update(req, res) {
         const user = await User.findByIdAndUpdate(req.params.id, req.body, {
             new: true
-        })
+        });
 
         return res.json(user)
     },
@@ -46,7 +47,12 @@ module.exports = {
             if(!Bcrypt.compareSync(req.body.password, user.password)) {
                 return res.status(400).send({ message: "The password is invalid" });
             }
-            res.send({ message: "The username and password combination is correct!" });
+
+            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', {});
+
+            await User.findByIdAndUpdate(user["_id"], {token});
+
+            res.send({ auth: true, token: token, message: "The username and password combination is correct!" });
         } catch (error) {
             console.log(error)
             res.status(500).send(error);
