@@ -33,4 +33,17 @@ module.exports = {
 
         res.send();
     },
+
+    async progressThisMonth(req, res) {
+        const currentDate = new Date();
+        const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
+        const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
+
+        const progress = await Progress.find({ 
+            createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
+            user: req.params.id 
+        });
+
+        return res.json(progress);
+    }
 }

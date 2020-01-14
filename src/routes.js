@@ -17,11 +17,14 @@ routes.get("/progress/:id", ProgressController.show);
 routes.post("/progress", ProgressController.store);
 routes.put("/progress/:id", ProgressController.update);
 routes.delete("/progress/:id", ProgressController.destroy);
+routes.get("/progress_this_month/:id", ProgressController.progressThisMonth);
 
 routes.get("/tasks", verifyJWT, TaskController.index);
 routes.get("/tasks/:id", TaskController.show);
 routes.post("/tasks", TaskController.store);
 routes.put("/tasks/:id", TaskController.update);
 routes.delete("/tasks/:id", TaskController.destroy);
+routes.get("/tasks_for_today/:id", TaskController.tasksForToday);
+
 
 module.exports = routes;

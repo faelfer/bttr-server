@@ -33,4 +33,19 @@ module.exports = {
 
         res.send();
     },
+
+    async tasksForToday(req, res) {
+        const earlyDay = new Date();
+        earlyDay.setHours(0,0,0,0);
+        
+        const endOfTheDay = new Date();
+        endOfTheDay.setHours(23,59,59,999);
+        
+        const task = await Task.find({ 
+            createAt: { $gte: earlyDay, $lte: endOfTheDay }, 
+            user: req.params.id 
+        });
+
+        return res.json(task);
+    }
 }
