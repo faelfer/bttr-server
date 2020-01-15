@@ -40,9 +40,9 @@ module.exports = {
 
     async login(req, res) {
         try {
-            var user = await User.findOne({ username: req.body.username });
+            var user = await User.findOne({ email: req.body.email });
             if(!user) {
-                return res.status(400).send({ message: "The username does not exist" });
+                return res.status(400).send({ message: "The email does not exist" });
             }
             if(!Bcrypt.compareSync(req.body.password, user.password)) {
                 return res.status(400).send({ message: "The password is invalid" });
@@ -52,7 +52,7 @@ module.exports = {
 
             await User.findByIdAndUpdate(user["_id"], {token});
 
-            res.send({ auth: true, token: token, message: "The username and password combination is correct!" });
+            res.send({ auth: true, token: token, message: "The email and password combination is correct!" });
         } catch (error) {
             console.log(error)
             res.status(500).send(error);
