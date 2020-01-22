@@ -12,9 +12,18 @@ module.exports = {
     },
 
     async show(req, res) {
-        const user = await User.findById(req.params.id);
+        try {
+            const user = await User.findById(req.params.id);
 
-        return res.json(user);
+            if(!user) {
+                return res.status(400).send({ message: "The user does not exist" });
+            }
+    
+            return res.json(user);
+        } catch (error) {
+            console.log("User.show | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async store(req, res) {
@@ -25,17 +34,35 @@ module.exports = {
     },
 
     async update(req, res) {
-        const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-            new: true
-        });
+        try {
+            const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+                new: true
+            });
 
-        return res.json(user)
+            if(!user) {
+                return res.status(400).send({ message: "The user does not exist" });
+            }
+
+            return res.json(user);
+        } catch (error) {
+            console.log("User.update | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async destroy(req, res) {
-        await User.findByIdAndRemove(req.params.id);
+        try {
+            const user = await User.findByIdAndRemove(req.params.id);
 
-        res.send();
+            if(!user) {
+                return res.status(400).send({ message: "The user does not exist" });
+            }
+
+            res.send();
+        } catch (error) {
+            console.log("User.destroy | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async login(req, res) {
@@ -54,7 +81,7 @@ module.exports = {
 
             res.send({ auth: true, token: token, message: "The email and password combination is correct!" });
         } catch (error) {
-            console.log(error)
+            console.log("User.login | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -67,7 +94,7 @@ module.exports = {
             }
 
             const randomText = Math.random().toString(36).slice(2); 
-            console.log("forgotPassword | new password: ",randomText);
+            console.log("User.forgotPassword | new password: ",randomText);
 
             password = Bcrypt.hashSync(randomText, 10);
 
@@ -75,7 +102,7 @@ module.exports = {
 
             res.send({ message: "The email is correct!" });
         } catch (error) {
-            console.log(error)
+            console.log("User.forgotPassword | error: ",error);
             res.status(500).send(error);
         }
     }
