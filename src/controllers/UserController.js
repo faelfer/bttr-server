@@ -67,7 +67,7 @@ module.exports = {
             }
 
             const randomText = Math.random().toString(36).slice(2); 
-            console.log(randomText);
+            console.log("forgotPassword | new password: ",randomText);
 
             password = Bcrypt.hashSync(randomText, 10);
 
