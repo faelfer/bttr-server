@@ -57,5 +57,26 @@ module.exports = {
             console.log(error)
             res.status(500).send(error);
         }
+    },
+
+    async forgotPassword(req, res) {
+        try {
+            var user = await User.findOne({ email: req.body.email });
+            if(!user) {
+                return res.status(400).send({ message: "The email does not exist" });
+            }
+
+            const randomText = Math.random().toString(36).slice(2); 
+            console.log(randomText);
+
+            password = Bcrypt.hashSync(randomText, 10);
+
+            await User.findByIdAndUpdate(user["_id"], {password});
+
+            res.send({ message: "The email is correct!" });
+        } catch (error) {
+            console.log(error)
+            res.status(500).send(error);
+        }
     }
 }

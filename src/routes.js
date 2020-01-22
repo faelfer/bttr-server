@@ -11,6 +11,7 @@ routes.post("/users", UserController.store);
 routes.put("/users/:id", verifyJWT, UserController.update);
 routes.delete("/users/:id", verifyJWT, UserController.destroy);
 routes.post("/login", UserController.login);
+routes.post("/forgot_password", UserController.forgotPassword);
 
 routes.get("/progress", verifyJWT, ProgressController.index);
 routes.get("/progress/:id", ProgressController.show);

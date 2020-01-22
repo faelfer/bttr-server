@@ -13,7 +13,8 @@ mongoose.connect(
     'mongodb://localhost:27017/bttrserver', 
     { 
         useNewUrlParser: true, 
-        useUnifiedTopology: true 
+        useUnifiedTopology: true,
+        useFindAndModify: false 
     }
 );
 requireDir("./src/models");
