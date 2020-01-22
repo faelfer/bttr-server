@@ -8,7 +8,16 @@ module.exports = {
     async index(req, res) {
         const users = await User.find();
 
-        return res.json(users);
+
+        const userWithoutPassword = users.map(user => {
+            // console.log("User.index | user: ",user);
+            let objectUser = user.toObject();
+            delete objectUser.password;
+            return objectUser;
+        });
+
+        // console.log("User.index | user: ",userWithoutPassword);
+        return res.json(userWithoutPassword);
     },
 
     async show(req, res) {
@@ -18,8 +27,11 @@ module.exports = {
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
             }
-    
-            return res.json(user);
+
+            var userWithoutPassword = user.toObject();
+            delete userWithoutPassword.password;
+
+            return res.json(userWithoutPassword);
         } catch (error) {
             console.log("User.show | error: ",error);
             res.status(500).send(error);
