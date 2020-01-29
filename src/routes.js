@@ -18,7 +18,7 @@ routes.get("/progress/:id", ProgressController.show);
 routes.post("/progress", ProgressController.store);
 routes.put("/progress/:id", ProgressController.update);
 routes.delete("/progress/:id", ProgressController.destroy);
-routes.get("/progress_this_month/:id", ProgressController.progressThisMonth);
+routes.get("/progress_this_month", ProgressController.progressThisMonth);
 
 routes.get("/tasks", verifyJWT, TaskController.index);
 routes.get("/tasks/:id", TaskController.show);
