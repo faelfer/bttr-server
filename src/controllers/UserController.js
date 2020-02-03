@@ -117,5 +117,29 @@ module.exports = {
             console.log("User.forgotPassword | error: ",error);
             res.status(500).send(error);
         }
+    },
+
+    async redefinePassword(req, res) {
+        try {
+            console.log("redefinePassword | token: ",req.headers['authorization']);
+            var user = await User.findOne({ token: req.headers['authorization'] });
+            if(!user) {
+                return res.status(400).send({ message: "The token does not exist" });
+            }
+
+            if(req.password !== req.confirmPassword) {
+                return res.status(400).send({ message: "Password and confirm password fields are different" });
+            }
+
+            password = Bcrypt.hashSync(req.body.password, 10);
+
+            await User.findByIdAndUpdate(user["_id"], {password});
+
+            res.send({ message: "The email is correct!" });
+        } catch (error) {
+            console.log("User.forgotPassword | error: ",error);
+            res.status(500).send(error);
+        }
+
     }
 }
