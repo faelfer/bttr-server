@@ -91,7 +91,12 @@ module.exports = {
 
             await User.findByIdAndUpdate(user["_id"], {token});
 
-            res.send({ auth: true, token: token, message: "The email and password combination is correct!" });
+            res.send({ 
+                auth: true,
+                token: token, 
+                message: "The email and password fields are correct!" 
+            });
+            
         } catch (error) {
             console.log("User.login | error: ",error);
             res.status(500).send(error);
@@ -127,7 +132,11 @@ module.exports = {
                 return res.status(400).send({ message: "The token does not exist" });
             }
 
-            if(req.password !== req.confirmPassword) {
+            if(!Bcrypt.compareSync(req.body.currentPassword, user.password)) {
+                return res.status(400).send({ message: "The password is invalid" });
+            }
+
+            if(req.body.password !== req.body.confirmPassword) {
                 return res.status(400).send({ message: "Password and confirm password fields are different" });
             }
 
@@ -135,9 +144,9 @@ module.exports = {
 
             await User.findByIdAndUpdate(user["_id"], {password});
 
-            res.send({ message: "The email is correct!" });
+            res.send({ message: "Password successfully reset!" });
         } catch (error) {
-            console.log("User.forgotPassword | error: ",error);
+            console.log("User.redefinePassword | error: ",error);
             res.status(500).send(error);
         }
 
