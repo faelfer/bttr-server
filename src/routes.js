@@ -4,6 +4,7 @@ const verifyJWT = require("./middleware/verifyJWT");
 const UserController = require('./controllers/UserController');
 const ProgressController = require('./controllers/ProgressController');
 const TaskController = require('./controllers/TaskController');
+const ExpenseController = require('./controllers/ExpenseController');
 
 routes.get("/users", verifyJWT, UserController.index);
 routes.get("/users/:id", verifyJWT, UserController.show);
@@ -29,6 +30,12 @@ routes.post("/tasks", TaskController.store);
 routes.put("/tasks/:id", TaskController.update);
 routes.delete("/tasks/:id", TaskController.destroy);
 routes.get("/tasks_for_today/:id", TaskController.tasksForToday);
+
+routes.get("/expenses", verifyJWT, ExpenseController.index);
+routes.get("/expenses/:id", ExpenseController.show);
+routes.post("/expenses", ExpenseController.store);
+routes.put("/expenses/:id", ExpenseController.update);
+routes.delete("/expenses/:id", ExpenseController.destroy);
 
 
 module.exports = routes;
