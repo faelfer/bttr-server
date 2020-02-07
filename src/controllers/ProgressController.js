@@ -10,23 +10,75 @@ module.exports = {
     },
 
     async show(req, res) {
-        const progress = await Progress.findById(req.params.id);
+        try{
+            const progress = await Progress.findById(req.params.id);
 
-        return res.json(progress);
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            return res.json(progress);
+        } catch (error) {
+            console.log("show | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async store(req, res) {
-        const progress = await Progress.create(req.body);
+        try{
+            const progress = await Progress.create(req.body);
 
-        return res.json(progress);
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            return res.json(progress);
+        } catch (error) {
+            console.log("store | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
-    async update(req, res) {
-        const progress = await Progress.findByIdAndUpdate(req.params.id, req.body, {
-            new: true
-        });
+    async update(req, res) {      
+        try{  
+            const progress = await Progress.findByIdAndUpdate(
+                req.params.id,
+                req.body,
+                { new: true }
+            );
 
-        return res.json(progress)
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            return res.json(progress);
+        } catch (error) {
+            console.log("store | error: ",error);
+            res.status(500).send(error);
+        }
+    },
+
+    async progressSum(req, res) {
+        try {
+            const progress = await Progress.findById(req.params.id);
+
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            // console.log("progressSum | progress: ", progress);
+            progress.goalDone += req.body.minutesDone;
+            const progressNew = await Progress.findByIdAndUpdate(
+                req.params.id, 
+                progress, 
+                { new: true }
+            );
+
+            return res.json(progressNew);
+        } catch (error) {
+            console.log("progressSum | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async destroy(req, res) {
@@ -35,14 +87,14 @@ module.exports = {
         res.send();
     },
 
-    async progressThisMonth(req, res) {
+    async progressMonth(req, res) {
         try {
             console.log(req.headers['authorization']);
             var user = await User.findOne({ token: req.headers['authorization'] });
             if(!user) {
                 return res.status(400).send({ message: "The token does not exist" });
             }
-            console.log("progressThisMonth | user: ",user["_id"]);
+            console.log("progressMonth | user: ",user["_id"]);
             
             const currentDate = new Date();
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
@@ -59,19 +111,19 @@ module.exports = {
 
             return res.json(progress);
         } catch (error) {
-            console.log("progressThisMonth | error: ",error);
+            console.log("progressMonth | error: ",error);
             res.status(500).send(error);
         }
     },
 
-    async overviewThisMonth(req, res) {
+    async overviewMonth(req, res) {
         try {
-            console.log(req.headers['authorization']);
+            // console.log(req.headers['authorization']);
             var user = await User.findOne({ token: req.headers['authorization'] });
             if(!user) {
                 return res.status(400).send({ message: "The token does not exist" });
             }
-            console.log("progressThisMonth | user: ",user["_id"]);
+            // console.log("progressThisMonth | user: ",user["_id"]);
             
             const currentDate = new Date();
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
@@ -91,30 +143,30 @@ module.exports = {
                 (currentDate.getMonth() + 1),
                 0
             );
-            console.log(`Data Manipulada: ${manipulatedDate}`);
+            // console.log(`Data Manipulada: ${manipulatedDate}`);
               
             const lastDayMonth = manipulatedDate.getDate();
-            console.log(`Último Dia do Mês ${lastDayMonth}`);
+            // console.log(`Último Dia do Mês ${lastDayMonth}`);
             
-            const overview = progress.map((item, index) => {
-                console.log("============================")
-                console.log("progresses.map | item: ",item);
+            const progressPercentage = progress.map((item, index) => {
+                // console.log("============================")
+                // console.log("progresses.map | item: ",item);
                 let goalTotal = item.goalPerDay * lastDayMonth
-                let percentage = parseInt((item.goalDone * 100)/goalTotal);
-                console.log("progresses.map | goalTotal: ", goalTotal);
-                console.log("progresses.map | percentage: ", percentage + " %");
-                return percentage;
+                let goalPercentage = parseInt((item.goalDone * 100)/goalTotal);
+                // console.log("progresses.map | goalTotal: ", goalTotal);
+                // console.log("progresses.map | percentage: ", percentage + " %");
+                return goalPercentage;
             });
             
-            console.log(overview);
+            // console.log("progressPercentage: ",progressPercentage);
             
-            var sum = overview.reduce(function(a, b){
-            return (a + b);
+            var sumPercentages = progressPercentage.reduce(function(a, b){
+                return (a + b);
             }, 0);
-            
-            const percentageOverview = parseInt(sum/overview.length);
 
-            return res.json(percentageOverview);
+            const progressGeneral = parseInt(sumPercentages / progressPercentage.length) + "%";
+
+            return res.json({ progressGeneral });
         } catch (error) {
             console.log("progressThisMonth | error: ",error);
             res.status(500).send(error);

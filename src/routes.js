@@ -17,10 +17,11 @@ routes.post("/redefine_password", UserController.redefinePassword);
 routes.get("/progress", verifyJWT, ProgressController.index);
 routes.get("/progress/:id", ProgressController.show);
 routes.post("/progress", ProgressController.store);
-routes.put("/progress/:id", ProgressController.update);
-routes.delete("/progress/:id", ProgressController.destroy);
-routes.get("/progress_this_month", ProgressController.progressThisMonth);
-routes.get("/overview_this_month", ProgressController.overviewThisMonth);
+routes.put("/progress/:id", verifyJWT, ProgressController.update);
+routes.put("/progress_sum/:id", verifyJWT, ProgressController.progressSum);
+routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
+routes.get("/progress_month", verifyJWT, ProgressController.progressMonth);
+routes.get("/overview_month", verifyJWT, ProgressController.overviewMonth);
 
 routes.get("/tasks", verifyJWT, TaskController.index);
 routes.get("/tasks/:id", TaskController.show);
