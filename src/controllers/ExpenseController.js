@@ -74,7 +74,7 @@ module.exports = {
             }
             // console.log("expenseOverviewMonth | user: ",user["_id"]);
 
-            const expenses = await Expense.find({
+            let expenses = await Expense.find({
                 user: user["_id"]
             });
 
@@ -98,17 +98,22 @@ module.exports = {
             // console.log("businessDays: ",businessDays);
             const businessDaysSoFar = workingDays(currentDay + 5, currentYear, currentMouth);
             // console.log("businessDaysSoFar: ", businessDaysSoFar);
-
-            expenses.toObject;
             
             const expensesOverview = expenses.map((item) => {
-              item.balanceForTheMonth = formatMoney(businessDays * item.expensePerDay);
-              console.log("balanceForTheMonth: ", item.balanceForTheMonth);
+              let balanceForTheMonth = formatMoney(businessDays * item.expensePerDay);
+              console.log("balanceForTheMonth: ", balanceForTheMonth);
             
-              item.balanceEndOfDay = formatMoney( (businessDays * item.expensePerDay) - (businessDaysSoFar * item.expensePerDay) );
-              console.log("balanceEndOfDay: ",  item.balanceEndOfDay);
-            //   console.log("expenses.map : ", item);
-              return item;
+              let balanceEndOfDay = formatMoney( (businessDays * item.expensePerDay) - (businessDaysSoFar * item.expensePerDay) );
+              console.log("balanceEndOfDay: ",  balanceEndOfDay);
+              console.log("expenses.map : ", item);
+              return {
+                "_id": item["_id"],
+                "name": item.name,
+                "expensePerDay": item.expensePerDay,
+                "user": item.user,
+                balanceForTheMonth,
+                balanceEndOfDay
+              };
             });
             
             console.log("expensesOverview: ", expensesOverview);
