@@ -115,7 +115,10 @@ module.exports = {
 
             password = Bcrypt.hashSync(randomText, 10);
 
-            await User.findByIdAndUpdate(user["_id"], {password});
+            await User.findByIdAndUpdate(
+                user["_id"], 
+                { password }
+            );
 
             res.send({ message: "The email is correct!" });
         } catch (error) {
@@ -142,7 +145,10 @@ module.exports = {
 
             password = Bcrypt.hashSync(req.body.password, 10);
 
-            await User.findByIdAndUpdate(user["_id"], {password});
+            await User.findByIdAndUpdate(
+                user["_id"],
+                { password }
+            );
 
             res.send({ message: "Password successfully reset!" });
         } catch (error) {

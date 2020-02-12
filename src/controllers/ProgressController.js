@@ -116,7 +116,7 @@ module.exports = {
         }
     },
 
-    async overviewMonth(req, res) {
+    async progressOverviewMonth(req, res) {
         try {
             // console.log(req.headers['authorization']);
             var user = await User.findOne({ token: req.headers['authorization'] });
@@ -160,8 +160,8 @@ module.exports = {
             
             // console.log("progressPercentage: ",progressPercentage);
             
-            var sumPercentages = progressPercentage.reduce(function(a, b){
-                return (a + b);
+            var sumPercentages = progressPercentage.reduce(function(itemPrimary, itemSecondary){
+                return (itemPrimary + itemSecondary);
             }, 0);
 
             const progressGeneral = parseInt(sumPercentages / progressPercentage.length) + "%";

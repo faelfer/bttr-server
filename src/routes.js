@@ -22,7 +22,7 @@ routes.put("/progress/:id", verifyJWT, ProgressController.update);
 routes.put("/progress_sum/:id", verifyJWT, ProgressController.progressSum);
 routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
 routes.get("/progress_month", verifyJWT, ProgressController.progressMonth);
-routes.get("/overview_month", verifyJWT, ProgressController.overviewMonth);
+routes.get("/progress_overview_month", verifyJWT, ProgressController.progressOverviewMonth);
 
 routes.get("/tasks", verifyJWT, TaskController.index);
 routes.get("/tasks/:id", TaskController.show);
@@ -36,6 +36,7 @@ routes.get("/expenses/:id", ExpenseController.show);
 routes.post("/expenses", ExpenseController.store);
 routes.put("/expenses/:id", ExpenseController.update);
 routes.delete("/expenses/:id", ExpenseController.destroy);
+routes.get("/expenses_overview_month", ExpenseController.expenseOverviewMonth);
 
 
 module.exports = routes;

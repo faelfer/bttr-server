@@ -1,5 +1,8 @@
 const mongoose = require('mongoose');
 const Expense = mongoose.model('Expense');
+const User = mongoose.model('User');
+const workingDays = require('../utils/workingDays');
+const formatMoney = require('../utils/formatMoney');
 
 module.exports = {
     async index(req, res) {
@@ -58,6 +61,61 @@ module.exports = {
             res.send();
         } catch (error) {
             console.log("Expense.destroy | error: ",error);
+            res.status(500).send(error);
+        }
+    },
+
+    async expenseOverviewMonth(req, res) {
+        try {
+            // console.log(req.headers['authorization']);
+            var user = await User.findOne({ token: req.headers['authorization'] });
+            if(!user) {
+                return res.status(400).send({ message: "The token does not exist" });
+            }
+            // console.log("expenseOverviewMonth | user: ",user["_id"]);
+
+            const expenses = await Expense.find({
+                user: user["_id"]
+            });
+
+            if(!expenses) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            let currentYear = (new Date()).getFullYear();
+            // console.log(`Ano Atual: ${currentYear}`);
+            let currentMouth = (new Date()).getMonth();
+            // console.log(`Mês Atual: ${currentMouth}`);
+            let currentDay = (new Date()).getDate();
+            // console.log(`Hoje: ${currentDay}`);
+            let manipulatedDate = new Date(currentYear, (currentMouth + 1), 0);
+            // console.log(`Data Manipulada: ${manipulatedDate}`);
+            let lastDayMonth = manipulatedDate.getDate();
+            // console.log(`Último Dia do Mês ${lastDayMonth}`);
+            // console.log(`Today: ${currentDay}/${currentMouth < 9 ? `0${currentMouth + 1}` : currentMouth + 1 }/${currentYear}`);
+            
+            const businessDays = workingDays(lastDayMonth + 5, currentYear, currentMouth);
+            // console.log("businessDays: ",businessDays);
+            const businessDaysSoFar = workingDays(currentDay + 5, currentYear, currentMouth);
+            // console.log("businessDaysSoFar: ", businessDaysSoFar);
+
+            expenses.toObject;
+            
+            const expensesOverview = expenses.map((item) => {
+              item.balanceForTheMonth = formatMoney(businessDays * item.expensePerDay);
+              console.log("balanceForTheMonth: ", item.balanceForTheMonth);
+            
+              item.balanceEndOfDay = formatMoney( (businessDays * item.expensePerDay) - (businessDaysSoFar * item.expensePerDay) );
+              console.log("balanceEndOfDay: ",  item.balanceEndOfDay);
+            //   console.log("expenses.map : ", item);
+              return item;
+            });
+            
+            console.log("expensesOverview: ", expensesOverview);
+
+            return res.json(expensesOverview);
+        } catch (error) {
+            console.log("progressThisMonth | error: ",error);
             res.status(500).send(error);
         }
     }
