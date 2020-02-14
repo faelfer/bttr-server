@@ -2,15 +2,15 @@ const express = require('express');
 const cors = require("cors");
 const mongoose = require('mongoose');
 const requireDir = require('require-dir');
+require('dotenv/config');
 
 // starting the App
 const app = express();
 app.use(express.json());
 app.use(cors());
-
 // starting db
 mongoose.connect(
-    'mongodb://localhost:27017/bttrserver', 
+    `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, 
     { 
         useNewUrlParser: true, 
         useUnifiedTopology: true,
