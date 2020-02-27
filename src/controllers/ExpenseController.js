@@ -101,11 +101,11 @@ module.exports = {
             
             const expensesOverview = expenses.map((item) => {
               let balanceForTheMonth = formatMoney(businessDays * item.expensePerDay);
-              console.log("balanceForTheMonth: ", balanceForTheMonth);
+            //   console.log("balanceForTheMonth: ", balanceForTheMonth);
             
               let balanceEndOfDay = formatMoney( (businessDays * item.expensePerDay) - (businessDaysSoFar * item.expensePerDay) );
-              console.log("balanceEndOfDay: ",  balanceEndOfDay);
-              console.log("expenses.map : ", item);
+            //   console.log("balanceEndOfDay: ",  balanceEndOfDay);
+            //   console.log("expenses.map : ", item);
               return {
                 "_id": item["_id"],
                 "name": item.name,
@@ -120,7 +120,7 @@ module.exports = {
 
             return res.json(expensesOverview);
         } catch (error) {
-            console.log("progressThisMonth | error: ",error);
+            // console.log("progressThisMonth | error: ",error);
             res.status(500).send(error);
         }
     }
