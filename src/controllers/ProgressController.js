@@ -159,7 +159,7 @@ module.exports = {
                 return goalPercentage;
             });
             
-            console.log("progressPercentage: ",progressPercentage);
+            // console.log("progressPercentage: ",progressPercentage);
             
             var sumPercentages = progressPercentage.reduce(function(itemPrimary, itemSecondary){
                 return (itemPrimary + itemSecondary);
@@ -168,12 +168,11 @@ module.exports = {
             const progressGeneral = parseInt(sumPercentages / progressPercentage.length) + "%";
 
             const businessDays = workingDays(lastDayMonth, currentDate.getFullYear(), currentDate.getMonth());
-            console.log("businessDays: ", businessDays);
-
+                // console.log("businessDays: ", businessDays);
             const businessDaysSoFar = workingDays(currentDate.getDate(), currentDate.getFullYear(), currentDate.getMonth());
-                console.log("BusinessDaysSoFar: ", businessDaysSoFar);
+                // console.log("BusinessDaysSoFar: ", businessDaysSoFar);
             const IdealPercentage = `${parseInt((businessDaysSoFar * 100)/businessDays)}%`;
-                console.log(`Ideal percentage so far: ${IdealPercentage}`);
+                // console.log(`Ideal percentage so far: ${IdealPercentage}`);
 
             return res.json({
                 IdealPercentage,  
