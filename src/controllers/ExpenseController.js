@@ -96,7 +96,7 @@ module.exports = {
             
             const businessDays = workingDays(lastDayMonth + 5, currentYear, currentMouth);
             // console.log("businessDays: ",businessDays);
-            const businessDaysSoFar = workingDays(currentDay + 5, currentYear, currentMouth);
+            const businessDaysSoFar = workingDays(currentDay, currentYear, currentMouth);
             // console.log("businessDaysSoFar: ", businessDaysSoFar);
             
             const expensesOverview = expenses.map((item) => {
