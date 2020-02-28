@@ -144,18 +144,25 @@ module.exports = {
                 (currentDate.getMonth() + 1),
                 0
             );
-            console.log(`Data Manipulada: ${manipulatedDate}`);
+                // console.log(`Data Manipulada: ${manipulatedDate}`);
               
             const lastDayMonth = manipulatedDate.getDate();
-            console.log(`Último Dia do Mês ${lastDayMonth}`);
+                // console.log(`Último Dia do Mês ${lastDayMonth}`);
+
+            const businessDays = workingDays(lastDayMonth, currentDate.getFullYear(), currentDate.getMonth());
+                // console.log("businessDays: ", businessDays);
+            const businessDaysSoFar = workingDays(currentDate.getDate(), currentDate.getFullYear(), currentDate.getMonth());
+                // console.log("BusinessDaysSoFar: ", businessDaysSoFar);
+            const IdealPercentage = `${parseInt((businessDaysSoFar * 100)/businessDays)}%`;
+                // console.log(`Ideal percentage so far: ${IdealPercentage}`);
             
             const progressPercentage = progress.map((item, index) => {
-                console.log("============================")
-                console.log("progresses.map | item: ",item);
-                let goalTotal = item.goalPerDay * lastDayMonth
-                let goalPercentage = parseInt((item.goalDone * 100)/goalTotal);
+                // console.log("============================")
+                // console.log("progresses.map | item: ",item);
+                let goalTotal = item.goalPerDay * businessDays;
+                let goalPercentage = parseInt( (item.goalDone * 100) /goalTotal );
                 // console.log("progresses.map | goalTotal: ", goalTotal);
-                // console.log("progresses.map | percentage: ", percentage + " %");
+                // console.log("progresses.map | goalPercentage: ", goalPercentage + "%");
                 return goalPercentage;
             });
             
@@ -166,13 +173,6 @@ module.exports = {
             }, 0);
 
             const progressGeneral = parseInt(sumPercentages / progressPercentage.length) + "%";
-
-            const businessDays = workingDays(lastDayMonth, currentDate.getFullYear(), currentDate.getMonth());
-                // console.log("businessDays: ", businessDays);
-            const businessDaysSoFar = workingDays(currentDate.getDate(), currentDate.getFullYear(), currentDate.getMonth());
-                // console.log("BusinessDaysSoFar: ", businessDaysSoFar);
-            const IdealPercentage = `${parseInt((businessDaysSoFar * 100)/businessDays)}%`;
-                // console.log(`Ideal percentage so far: ${IdealPercentage}`);
 
             return res.json({
                 IdealPercentage,  

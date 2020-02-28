@@ -16,7 +16,7 @@ function switchWeek(dayWeek) {
 module.exports = function workingDays(lastDay, currentYear, currentMouth) {
   // console.log("workingDay | lastDay: ", lastDay);
   let businessDaysCounted = 0;
-  let loops = 0;
+  let loops = 5;
 
   for (; loops < lastDay; loops++) {
       // console.log("======================================================");

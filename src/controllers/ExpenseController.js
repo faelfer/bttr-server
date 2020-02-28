@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const Expense = mongoose.model('Expense');
 const User = mongoose.model('User');
-const workingDays = require('../utils/workingDays');
+const workingDaysExpense = require('../utils/workingDaysExpense');
 const formatMoney = require('../utils/formatMoney');
 
 module.exports = {
@@ -94,9 +94,9 @@ module.exports = {
             // console.log(`Último Dia do Mês ${lastDayMonth}`);
             // console.log(`Today: ${currentDay}/${currentMouth < 9 ? `0${currentMouth + 1}` : currentMouth + 1 }/${currentYear}`);
             
-            const businessDays = workingDays(lastDayMonth + 5, currentYear, currentMouth);
+            const businessDays = workingDaysExpense(lastDayMonth + 5, currentYear, currentMouth);
             // console.log("businessDays: ",businessDays);
-            const businessDaysSoFar = workingDays(currentDay, currentYear, currentMouth);
+            const businessDaysSoFar = workingDaysExpense(currentDay, currentYear, currentMouth);
             // console.log("businessDaysSoFar: ", businessDaysSoFar);
             
             const expensesOverview = expenses.map((item) => {
@@ -116,7 +116,7 @@ module.exports = {
               };
             });
             
-            console.log("expensesOverview: ", expensesOverview);
+            // console.log("expensesOverview: ", expensesOverview);
 
             return res.json(expensesOverview);
         } catch (error) {
