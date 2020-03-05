@@ -135,7 +135,9 @@ module.exports = {
                 user: user["_id"]
             });
 
-            if(!progress) {
+            // console.log("progressThisMonth | progress: ", progress);
+
+            if(!progress || progress.length === 0) {
                 return res.status(400).send({ message: "The progress does not exist" });
             }
 
