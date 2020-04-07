@@ -27,6 +27,14 @@ module.exports = {
 
     async store(req, res) {
         try{
+            console.log(req.headers['authorization']);
+            var user = await User.findOne({ token: req.headers['authorization'] });
+            if(!user) {
+                return res.status(400).send({ message: "The token does not exist" });
+            }
+            console.log("progressMonth | user: ",user["_id"]);
+            req.body.user = user["_id"];
+            console.log("store | req.body: ",req.body);
             const progress = await Progress.create(req.body);
 
             if(!progress) {
