@@ -4,6 +4,7 @@
 ![GitHub forks](https://img.shields.io/github/forks/NYDino/bttr-server)
 ![GitHub stars](https://img.shields.io/github/stars/NYDino/bttr-server)
 ![GitHub license](https://img.shields.io/github/license/NYDino/bttr-server)
+[![Contributor Covenant](https://img.shields.io/badge/Contributor%20Covenant-v2.0%20adopted-ff69b4.svg)](CODE_OF_CONDUCT.md)
 ![Twitter](https://img.shields.io/twitter/url?style=social&url=https%3A%2F%2Ftwitter.com%2FiNYD5)
 
 Back-end of the bttr project with Node.js, Express and MongoDB.
