@@ -10,7 +10,7 @@ Back-end of the bttr project with Node.js, Express and MongoDB.
 
 ## Installation
 
-Use the package manager [docker](https://www.docker.com/get-started) to install MongoDB.
+Use the [docker](https://www.docker.com/get-started) to install MongoDB.
 
 ```bash
 docker pull mongo
