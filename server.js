@@ -10,7 +10,7 @@ app.use(express.json());
 app.use(cors());
 // starting db
 mongoose.connect(
-    `mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}/${process.env.DB_NAME}`, 
+    process.env.MONGO_URL, 
     { 
         useNewUrlParser: true, 
         useUnifiedTopology: true,
