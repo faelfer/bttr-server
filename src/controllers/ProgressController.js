@@ -12,6 +12,7 @@ module.exports = {
 
     async show(req, res) {
         try{
+            console.log("show | req.params.id: ",req.params.id);
             const progress = await Progress.findById(req.params.id);
 
             if(!progress) {

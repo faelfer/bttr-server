@@ -6,10 +6,10 @@ describe('insert', () => {
   let db;
 
   beforeAll(async () => {
-    connection = await MongoClient.connect(`mongodb://${process.env.DB_HOST}:${process.env.DB_PORT}`, {
+    connection = await MongoClient.connect(process.env.MONGO_URL, {
       useNewUrlParser: true,
     });
-    db = await connection.db(`${process.env.DB_NAME}`);
+    db = await connection.db(`bttrdb`);
   });
 
   afterAll(async () => {
