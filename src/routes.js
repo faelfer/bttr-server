@@ -38,5 +38,8 @@ routes.put("/expenses/:id", ExpenseController.update);
 routes.delete("/expenses/:id", ExpenseController.destroy);
 routes.get("/expenses_overview_month", ExpenseController.expenseOverviewMonth);
 
+routes.get("/debug-sentry", function mainHandler(req, res) {
+    throw new Error('Checking Sentry Integration!');
+});
 
 module.exports = routes;
