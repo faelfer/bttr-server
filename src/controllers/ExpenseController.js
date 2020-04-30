@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-const Expense = mongoose.model('Expense');
-const User = mongoose.model('User');
+const Expense = require('../models/Expense');
+const User = require('../models/User');
 const workingDaysExpense = require('../utils/workingDaysExpense');
 const formatMoney = require('../utils/formatMoney');
 

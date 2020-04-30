@@ -1,5 +1,4 @@
-const mongoose = require('mongoose');
-const Task = mongoose.model('Task');
+const Task = require('../models/Expense');
 
 module.exports = {
     async index(req, res) {

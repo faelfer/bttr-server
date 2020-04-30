@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
 const Bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
-const User = mongoose.model('User');
+const User = require('../models/User');
 
 module.exports = {
     async index(req, res) {

@@ -1,6 +1,5 @@
-const mongoose = require('mongoose');
-const Progress = mongoose.model('Progress');
-const User = mongoose.model('User');
+const Progress = require('../models/Progress');
+const User = require('../models/User');
 const workingDays = require('../utils/workingDays');
 
 module.exports = {

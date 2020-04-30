@@ -27,4 +27,4 @@ const ProgressSchema = new mongoose.Schema({
     },
 });
 
-mongoose.model('Progress', ProgressSchema);
+module.exports = mongoose.model('Progress', ProgressSchema);

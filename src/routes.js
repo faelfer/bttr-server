@@ -42,4 +42,8 @@ routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');
 });
 
+routes.get('/test', async (req, res) => {
+    res.json({message: 'pass!'})
+})
+
 module.exports = routes;
