@@ -9,9 +9,9 @@ setupDB('endpoint-testing')
 it('Should save user to database', async done => {
     const res = await request.post('/api/users')
     .send({
-		"email": "testing@gmail.com",
-        "username": "testing",
-        "password": "testing"
+		  "email": "testing@gmail.com",
+      "username": "testing",
+      "password": "testing"
     })
 
     const user = await User.findOne({ email: 'testing@gmail.com' })

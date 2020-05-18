@@ -1,5 +1,6 @@
 const Progress = require('../models/Progress');
 const User = require('../models/User');
+const ProgressHistoric = require('../models/ProgressHistoric');
 const workingDays = require('../utils/workingDays');
 
 module.exports = {
@@ -82,6 +83,13 @@ module.exports = {
                 progress, 
                 { new: true }
             );
+
+            const historic = await ProgressHistoric.create({
+                "goalAdded": req.body.minutesDone,
+                "progress": progress._id,
+                "ProgressName": progress.name
+            });
+            console.log("progressSum | historic: ",historic);
 
             return res.json(progressNew);
         } catch (error) {
