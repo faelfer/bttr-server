@@ -87,7 +87,8 @@ module.exports = {
             const historic = await ProgressHistoric.create({
                 "goalAdded": req.body.minutesDone,
                 "progress": progress._id,
-                "ProgressName": progress.name
+                "ProgressName": progress.name,
+                "user": progress.user,
             });
             console.log("progressSum | historic: ",historic);
 

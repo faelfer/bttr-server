@@ -2,29 +2,29 @@ const ProgressHistoric = require('../models/ProgressHistoric');
 
 module.exports = {
     async index(req, res) {
-        const tasks = await ProgressHistoric.find();
+        const progressHistorics = await ProgressHistoric.find();
 
-        return res.json(tasks);
+        return res.json(progressHistorics);
     },
 
     async show(req, res) {
-        const task = await ProgressHistoric.findById(req.params.id);
+        const progressHistoric = await ProgressHistoric.findById(req.params.id);
 
-        return res.json(task);
+        return res.json(progressHistoric);
     },
 
     async store(req, res) {
-        const task = await ProgressHistoric.create(req.body);
+        const progressHistoric = await ProgressHistoric.create(req.body);
 
-        return res.json(task);
+        return res.json(progressHistoric);
     },
 
     async update(req, res) {
-        const task = await ProgressHistoric.findByIdAndUpdate(req.params.id, req.body, {
+        const progressHistoric = await ProgressHistoric.findByIdAndUpdate(req.params.id, req.body, {
             new: true
         });
 
-        return res.json(task)
+        return res.json(progressHistoric)
     },
 
     async destroy(req, res) {
