@@ -3,7 +3,6 @@ const routes = express.Router();
 const verifyJWT = require("./middleware/verifyJWT");
 const UserController = require('./controllers/UserController');
 const ProgressController = require('./controllers/ProgressController');
-const TaskController = require('./controllers/TaskController');
 const ExpenseController = require('./controllers/ExpenseController');
 
 routes.get("/users", verifyJWT, UserController.index);
@@ -23,13 +22,6 @@ routes.put("/progress_sum/:id", verifyJWT, ProgressController.progressSum);
 routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
 routes.get("/progress_month", verifyJWT, ProgressController.progressMonth);
 routes.get("/progress_overview_month", verifyJWT, ProgressController.progressOverviewMonth);
-
-routes.get("/tasks", verifyJWT, TaskController.index);
-routes.get("/tasks/:id", TaskController.show);
-routes.post("/tasks", TaskController.store);
-routes.put("/tasks/:id", TaskController.update);
-routes.delete("/tasks/:id", TaskController.destroy);
-routes.get("/tasks_for_today/:id", TaskController.tasksForToday);
 
 routes.get("/expenses", verifyJWT, ExpenseController.index);
 routes.get("/expenses/:id", ExpenseController.show);
