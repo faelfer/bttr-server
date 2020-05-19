@@ -23,13 +23,6 @@ routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
 routes.get("/progress_month", verifyJWT, ProgressController.progressMonth);
 routes.get("/progress_overview_month", verifyJWT, ProgressController.progressOverviewMonth);
 
-routes.get("/expenses", verifyJWT, ExpenseController.index);
-routes.get("/expenses/:id", ExpenseController.show);
-routes.post("/expenses", ExpenseController.store);
-routes.put("/expenses/:id", ExpenseController.update);
-routes.delete("/expenses/:id", ExpenseController.destroy);
-routes.get("/expenses_overview_month", ExpenseController.expenseOverviewMonth);
-
 routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');
 });
