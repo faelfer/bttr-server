@@ -100,9 +100,18 @@ module.exports = {
     },
 
     async destroy(req, res) {
-        await Progress.findByIdAndRemove(req.params.id);
+        try {
+            const progress = await Progress.findByIdAndRemove(req.params.id);
 
-        res.send();
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            res.send({ message: "successfully deleted" });
+        } catch (error) {
+            console.log("Progress.destroy | error: ",error);
+            res.status(500).send({ message: error.message });
+        }
     },
 
     async progressMonth(req, res) {

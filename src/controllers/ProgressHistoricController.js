@@ -28,8 +28,17 @@ module.exports = {
     },
 
     async destroy(req, res) {
-        await ProgressHistoric.findByIdAndRemove(req.params.id);
+        try {
+            const progressHistoric = await ProgressHistoric.findByIdAndRemove(req.params.id);
 
-        res.send();
+            if(!progressHistoric) {
+                return res.status(400).send({ message: "The progress historic does not exist" });
+            }
+
+            res.send({ message: "successfully deleted" });
+        } catch (error) {
+            console.log("ProgressHistoric.destroy | error: ",error);
+            res.status(500).send({ message: error.message });
+        }
     },
 }
