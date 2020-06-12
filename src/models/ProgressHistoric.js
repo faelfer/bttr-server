@@ -1,5 +1,9 @@
 const mongoose = require('mongoose');
 
+const timeZoneBrazil = new Date(new Date().setHours(new Date().getHours() - 3));
+// console.log(timeZoneBrazil)
+
+
 const ProgressSchema = new mongoose.Schema({
     goalAdded: {
         type: Number,
@@ -19,7 +23,7 @@ const ProgressSchema = new mongoose.Schema({
     },
     createAt: {
         type: Date,
-        default: Date.now,
+        default: timeZoneBrazil,
     },
 });
 
