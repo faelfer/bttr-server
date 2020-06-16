@@ -2,6 +2,7 @@ const Progress = require('../models/Progress');
 const User = require('../models/User');
 const ProgressHistoric = require('../models/ProgressHistoric');
 const workingDays = require('../utils/workingDays');
+const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 module.exports = {
     async index(req, res) {
@@ -123,7 +124,8 @@ module.exports = {
             }
             console.log("progressMonth | user: ",user["_id"]);
             
-            const currentDate = new Date();
+            const currentDate = dateNowBrazil();
+            console.log("progressMonth | currentDate: ", currentDate)
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
 
