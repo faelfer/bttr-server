@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 const ProgressSchema = new mongoose.Schema({
     name: {
@@ -23,7 +24,7 @@ const ProgressSchema = new mongoose.Schema({
     },
     createAt: {
         type: Date,
-        default: Date.now,
+        default: dateNowBrazil,
     },
 });
 
