@@ -154,7 +154,8 @@ module.exports = {
             }
             // console.log("progressThisMonth | user: ",user["_id"]);
             
-            const currentDate = new Date();
+            const currentDate = dateNowBrazil();
+            console.log("progressOverviewMonth | currentDate: ", currentDate);
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
 
