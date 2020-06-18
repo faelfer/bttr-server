@@ -1,4 +1,5 @@
 const express = require('express');
+const Sentry = require('@sentry/node');
 const cors = require("cors");
 const mongoose = require('mongoose');
 const requireDir = require('require-dir');
@@ -6,6 +7,9 @@ require('dotenv/config');
 
 // starting the App
 const app = express();
+
+Sentry.init({ dsn: process.env.SENTRY_ENVIRONMENT });
+
 app.use(express.json());
 app.use(cors());
 // starting db
@@ -19,7 +23,11 @@ mongoose.connect(
 );
 requireDir("./src/models");
 
+app.use(Sentry.Handlers.requestHandler());
+
 // routes
 app.use('/api', require('./src/routes'));
 
-app.listen(process.env.PORT || 3001);
+app.use(Sentry.Handlers.errorHandler());
+
+module.exports = app

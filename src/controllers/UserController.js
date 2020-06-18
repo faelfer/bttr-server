@@ -1,8 +1,7 @@
-const mongoose = require('mongoose');
 const Bcrypt = require("bcryptjs");
 const jwt = require('jsonwebtoken');
 
-const User = mongoose.model('User');
+const User = require('../models/User');
 
 module.exports = {
     async index(req, res) {
@@ -70,10 +69,10 @@ module.exports = {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
-            res.send();
+            res.send({ message: "successfully deleted" });
         } catch (error) {
             console.log("User.destroy | error: ",error);
-            res.status(500).send(error);
+            res.status(500).send({ message: error.message });
         }
     },
 

@@ -1,20 +1,17 @@
 const mongoose = require('mongoose');
 const dateNowBrazil = require('../utils/timeZoneBrazil');
 
+
 const ProgressSchema = new mongoose.Schema({
-    name: {
-        type: String,
-        required: true,
-    },
-    goalPerDay: {
+    goalAdded: {
         type: Number,
         required: true,
     },
-    goalDone: {
-        type: Number,
-        required: true,
+    progress: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Progress'
     },
-    icon: {
+    ProgressName: {
         type: String,
         required: true,
     },
@@ -28,4 +25,4 @@ const ProgressSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Progress', ProgressSchema);
+module.exports = mongoose.model('ProgressHistoric', ProgressSchema);

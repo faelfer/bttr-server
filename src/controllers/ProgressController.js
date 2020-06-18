@@ -1,7 +1,8 @@
-const mongoose = require('mongoose');
-const Progress = mongoose.model('Progress');
-const User = mongoose.model('User');
+const Progress = require('../models/Progress');
+const User = require('../models/User');
+const ProgressHistoric = require('../models/ProgressHistoric');
 const workingDays = require('../utils/workingDays');
+const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 module.exports = {
     async index(req, res) {
@@ -12,6 +13,7 @@ module.exports = {
 
     async show(req, res) {
         try{
+            console.log("show | req.params.id: ",req.params.id);
             const progress = await Progress.findById(req.params.id);
 
             if(!progress) {
@@ -83,6 +85,14 @@ module.exports = {
                 { new: true }
             );
 
+            const historic = await ProgressHistoric.create({
+                "goalAdded": req.body.minutesDone,
+                "progress": progress._id,
+                "ProgressName": progress.name,
+                "user": progress.user,
+            });
+            console.log("progressSum | historic: ",historic);
+
             return res.json(progressNew);
         } catch (error) {
             console.log("progressSum | error: ",error);
@@ -91,9 +101,18 @@ module.exports = {
     },
 
     async destroy(req, res) {
-        await Progress.findByIdAndRemove(req.params.id);
+        try {
+            const progress = await Progress.findByIdAndRemove(req.params.id);
 
-        res.send();
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            res.send({ message: "successfully deleted" });
+        } catch (error) {
+            console.log("Progress.destroy | error: ",error);
+            res.status(500).send({ message: error.message });
+        }
     },
 
     async progressMonth(req, res) {
@@ -105,7 +124,8 @@ module.exports = {
             }
             console.log("progressMonth | user: ",user["_id"]);
             
-            const currentDate = new Date();
+            const currentDate = dateNowBrazil();
+            console.log("progressMonth | currentDate: ", currentDate)
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
 
@@ -134,7 +154,8 @@ module.exports = {
             }
             // console.log("progressThisMonth | user: ",user["_id"]);
             
-            const currentDate = new Date();
+            const currentDate = dateNowBrazil();
+            console.log("progressOverviewMonth | currentDate: ", currentDate);
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
 
