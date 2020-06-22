@@ -30,4 +30,6 @@ app.use('/api', require('./src/routes'));
 
 app.use(Sentry.Handlers.errorHandler());
 
+app.listen(process.env.PORT || 3001);
+
 module.exports = app
