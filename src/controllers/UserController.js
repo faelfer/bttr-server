@@ -86,7 +86,7 @@ module.exports = {
                 return res.status(400).send({ message: "The password is invalid" });
             }
 
-            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', {});
+            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', { expiresIn: "14 days" });
 
             await User.findByIdAndUpdate(user["_id"], {token});
 
