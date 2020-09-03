@@ -19,6 +19,10 @@ module.exports = {
             if(!progress) {
                 return res.status(400).send({ message: "The progress does not exist" });
             }
+            console.log("Progress.show | req.userId: ",req.userId);
+            if(req.userId != progress.user) {
+                return res.status(403).send({ message: "Access was not authorized" });
+            }
 
             return res.json(progress);
         } catch (error) {
@@ -29,11 +33,13 @@ module.exports = {
 
     async store(req, res) {
         try{
-            console.log(req.headers['authorization']);
-            var user = await User.findOne({ token: req.headers['authorization'] });
+            console.log("redefinePassword | req.userId: ",req.userId);
+            const user = await User.findById(req.userId);
+            console.log("Progress.store | user: ",user);
             if(!user) {
-                return res.status(400).send({ message: "The token does not exist" });
+                return res.status(400).send({ message: "The user does not exist" });
             }
+            console.log("User.show | req.userId: ",req.userId);
             console.log("progressMonth | user: ",user["_id"]);
             req.body.user = user["_id"];
             console.log("store | req.body: ",req.body);
@@ -123,8 +129,8 @@ module.exports = {
                 return res.status(400).send({ message: "The token does not exist" });
             }
             console.log("progressMonth | user: ",user["_id"]);
-            
-            const currentDate = dateNowBrazil();
+            console.log("progressMonth | req.params.date: ",req.params.date);
+            const currentDate = dateNowBrazil(req.params.date);
             console.log("progressMonth | currentDate: ", currentDate)
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
@@ -154,7 +160,7 @@ module.exports = {
             }
             // console.log("progressThisMonth | user: ",user["_id"]);
             
-            const currentDate = dateNowBrazil();
+            const currentDate = dateNowBrazil(new Date());
             console.log("progressOverviewMonth | currentDate: ", currentDate);
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );

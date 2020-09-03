@@ -148,6 +148,10 @@ module.exports = {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
+            }
+
             if(!Bcrypt.compareSync(req.body.currentPassword, user.password)) {
                 return res.status(400).send({ message: "The password is invalid" });
             }

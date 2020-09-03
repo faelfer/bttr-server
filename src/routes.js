@@ -12,15 +12,15 @@ routes.put("/users/:id", verifyJWT, UserController.update);
 routes.delete("/users/:id", verifyJWT, UserController.destroy);
 routes.post("/login", UserController.login);
 routes.post("/forgot_password", UserController.forgotPassword);
-routes.post("/redefine_password", UserController.redefinePassword);
+routes.post("/redefine_password", verifyJWT, UserController.redefinePassword);
 
 routes.get("/progress", verifyJWT, ProgressController.index);
-routes.get("/progress/:id", ProgressController.show);
-routes.post("/progress", ProgressController.store);
+routes.get("/progress/:id", verifyJWT, ProgressController.show);
+routes.post("/progress", verifyJWT, ProgressController.store);
 routes.put("/progress/:id", verifyJWT, ProgressController.update);
 routes.put("/progress_sum/:id", verifyJWT, ProgressController.progressSum);
 routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
-routes.get("/progress_month", verifyJWT, ProgressController.progressMonth);
+routes.get("/progress_month/:date", verifyJWT, ProgressController.progressMonth);
 routes.get("/progress_overview_month", verifyJWT, ProgressController.progressOverviewMonth);
 
 routes.get("/progress_historic", verifyJWT, ProgressHistoricController.index);
