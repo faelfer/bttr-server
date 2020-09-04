@@ -28,6 +28,7 @@ routes.get("/progress_historic/:id", ProgressHistoricController.show);
 routes.post("/progress_historic", ProgressHistoricController.store);
 routes.put("/progress_historic/:id", verifyJWT, ProgressHistoricController.update);
 routes.delete("/progress_historic/:id", verifyJWT, ProgressHistoricController.destroy);
+routes.get("/progress_historic/extract/:id", verifyJWT, ProgressHistoricController.historicMonth);
 
 routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');

@@ -26,7 +26,7 @@ module.exports = {
 
             return res.json(progress);
         } catch (error) {
-            console.log("show | error: ",error);
+            console.log("Progress.show | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -42,6 +42,7 @@ module.exports = {
             console.log("User.show | req.userId: ",req.userId);
             console.log("progressMonth | user: ",user["_id"]);
             req.body.user = user["_id"];
+            req.body.createAt = new Date();
             console.log("store | req.body: ",req.body);
             const progress = await Progress.create(req.body);
 
@@ -96,6 +97,7 @@ module.exports = {
                 "progress": progress._id,
                 "ProgressName": progress.name,
                 "user": progress.user,
+                "createAt": new Date()
             });
             console.log("progressSum | historic: ",historic);
 
@@ -124,7 +126,7 @@ module.exports = {
     async progressMonth(req, res) {
         try {
             console.log(req.headers['authorization']);
-            var user = await User.findOne({ token: req.headers['authorization'] });
+            var user = await User.findById(req.userId);
             if(!user) {
                 return res.status(400).send({ message: "The token does not exist" });
             }
@@ -133,7 +135,9 @@ module.exports = {
             const currentDate = dateNowBrazil(req.params.date);
             console.log("progressMonth | currentDate: ", currentDate)
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
+            console.log("progressMonth | manipulatedDateStart: ", manipulatedDateStart)
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
+            console.log("progressMonth | manipulatedDateEnd: ", manipulatedDateEnd)
 
             const progress = await Progress.find({ 
                 createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
