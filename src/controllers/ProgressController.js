@@ -42,7 +42,6 @@ module.exports = {
             console.log("User.show | req.userId: ",req.userId);
             console.log("progressMonth | user: ",user["_id"]);
             req.body.user = user["_id"];
-            req.body.createAt = new Date();
             console.log("store | req.body: ",req.body);
             const progress = await Progress.create(req.body);
 
@@ -96,8 +95,7 @@ module.exports = {
                 "goalAdded": req.body.minutesDone,
                 "progress": progress._id,
                 "ProgressName": progress.name,
-                "user": progress.user,
-                "createAt": new Date()
+                "user": progress.user
             });
             console.log("progressSum | historic: ",historic);
 
