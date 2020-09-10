@@ -7,7 +7,6 @@ module.exports = {
     async index(req, res) {
         const users = await User.find();
 
-
         const userWithoutPassword = users.map(user => {
             // console.log("User.index | user: ",user);
             let objectUser = user.toObject();
@@ -21,10 +20,16 @@ module.exports = {
 
     async show(req, res) {
         try {
+
             const user = await User.findById(req.params.id);
+            console.log("User.show | user: ",user);
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
+            }
+            console.log("User.show | req.userId: ",req.userId);
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
             }
 
             var userWithoutPassword = user.toObject();
@@ -54,6 +59,10 @@ module.exports = {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
+            }
+
             return res.json(user);
         } catch (error) {
             console.log("User.update | error: ",error);
@@ -67,6 +76,10 @@ module.exports = {
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
+            }
+
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
             }
 
             res.send({ message: "successfully deleted" });
@@ -83,17 +96,17 @@ module.exports = {
                 return res.status(400).send({ message: "The email does not exist" });
             }
             if(!Bcrypt.compareSync(req.body.password, user.password)) {
-                return res.status(400).send({ message: "The password is invalid" });
+                return res.status(403).send({ message: "The password is invalid" });
             }
 
-            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', {});
+            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', { expiresIn: "14 days" });
 
             await User.findByIdAndUpdate(user["_id"], {token});
 
             res.send({ 
                 auth: true,
-                token: token, 
-                message: "The email and password fields are correct!" 
+                token, 
+                message: "E-mail and password are correct!" 
             });
             
         } catch (error) {
@@ -128,10 +141,15 @@ module.exports = {
 
     async redefinePassword(req, res) {
         try {
-            console.log("redefinePassword | token: ",req.headers['authorization']);
-            var user = await User.findOne({ token: req.headers['authorization'] });
+            console.log("redefinePassword | req.userId: ",req.userId);
+            const user = await User.findById(req.userId);
+
             if(!user) {
-                return res.status(400).send({ message: "The token does not exist" });
+                return res.status(400).send({ message: "The user does not exist" });
+            }
+
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
             }
 
             if(!Bcrypt.compareSync(req.body.currentPassword, user.password)) {
