@@ -19,21 +19,27 @@ module.exports = {
             if(!progress) {
                 return res.status(400).send({ message: "The progress does not exist" });
             }
+            console.log("Progress.show | req.userId: ",req.userId);
+            if(req.userId != progress.user) {
+                return res.status(403).send({ message: "Access was not authorized" });
+            }
 
             return res.json(progress);
         } catch (error) {
-            console.log("show | error: ",error);
+            console.log("Progress.show | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async store(req, res) {
         try{
-            console.log(req.headers['authorization']);
-            var user = await User.findOne({ token: req.headers['authorization'] });
+            console.log("redefinePassword | req.userId: ",req.userId);
+            const user = await User.findById(req.userId);
+            console.log("Progress.store | user: ",user);
             if(!user) {
-                return res.status(400).send({ message: "The token does not exist" });
+                return res.status(400).send({ message: "The user does not exist" });
             }
+            console.log("User.show | req.userId: ",req.userId);
             console.log("progressMonth | user: ",user["_id"]);
             req.body.user = user["_id"];
             console.log("store | req.body: ",req.body);
@@ -89,7 +95,7 @@ module.exports = {
                 "goalAdded": req.body.minutesDone,
                 "progress": progress._id,
                 "ProgressName": progress.name,
-                "user": progress.user,
+                "user": progress.user
             });
             console.log("progressSum | historic: ",historic);
 
@@ -118,27 +124,48 @@ module.exports = {
     async progressMonth(req, res) {
         try {
             console.log(req.headers['authorization']);
-            var user = await User.findOne({ token: req.headers['authorization'] });
+            var user = await User.findById(req.userId);
             if(!user) {
                 return res.status(400).send({ message: "The token does not exist" });
             }
             console.log("progressMonth | user: ",user["_id"]);
+            console.log("progressMonth | req.params.date: ",req.params.date);
+            const currentDate = new Date(req.params.date);
+            console.log("progressMonth | currentDate.getDate(): ", currentDate.getDate())
+            if (currentDate.getDate() != 1) {
+                const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
+                console.log("progressMonth | manipulatedDateStart: ", manipulatedDateStart)
+                const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
+                console.log("progressMonth | manipulatedDateEnd: ", manipulatedDateEnd)
+
+                const progress = await Progress.find({ 
+                    createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
+                    user: user["_id"]
+                });
+    
+                if(!progress) {
+                    return res.status(400).send({ message: "The progress does not exist" });
+                }
+    
+                return res.json(progress);
+            } else {
+                console.log("progressMonth | else ");
+                const manipulatedDateStart = new Date( currentDate.getFullYear(), (currentDate.getMonth()), 1 );
+                console.log("progressMonth | manipulatedDateStart: ", manipulatedDateStart)
+                const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
+                console.log("progressMonth | manipulatedDateEnd: ", manipulatedDateEnd)
             
-            const currentDate = dateNowBrazil();
-            console.log("progressMonth | currentDate: ", currentDate)
-            const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
-            const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
-
-            const progress = await Progress.find({ 
-                createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
-                user: user["_id"]
-            });
-
-            if(!progress) {
-                return res.status(400).send({ message: "The progress does not exist" });
+                const progress = await Progress.find({ 
+                    createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
+                    user: user["_id"]
+                });
+    
+                if(!progress) {
+                    return res.status(400).send({ message: "The progress does not exist" });
+                }
+    
+                return res.json(progress);
             }
-
-            return res.json(progress);
         } catch (error) {
             console.log("progressMonth | error: ",error);
             res.status(500).send(error);
@@ -154,7 +181,7 @@ module.exports = {
             }
             // console.log("progressThisMonth | user: ",user["_id"]);
             
-            const currentDate = dateNowBrazil();
+            const currentDate = dateNowBrazil(new Date());
             console.log("progressOverviewMonth | currentDate: ", currentDate);
             const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );

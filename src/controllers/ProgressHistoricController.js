@@ -41,4 +41,24 @@ module.exports = {
             res.status(500).send({ message: error.message });
         }
     },
+
+    async historicMonth(req, res) {
+        try {
+            const progress = await ProgressHistoric.find({
+                progress: req.params.id
+            });
+
+            console.log(req.params.id)
+            console.log(progress)
+
+            if(!progress) {
+                return res.status(400).send({ message: "The progress does not exist" });
+            }
+
+            return res.json(progress);
+        } catch (error) {
+            console.log("progressMonth | error: ",error);
+            res.status(500).send(error);
+        }
+    },
 }
