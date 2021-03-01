@@ -3,6 +3,8 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 
+const sendUser = require('../utils/sendEmail');
+
 module.exports = {
     async index(req, res) {
         const users = await User.find();
@@ -43,10 +45,29 @@ module.exports = {
     },
 
     async store(req, res) {
-        req.body.password = Bcrypt.hashSync(req.body.password, 10);
-        const user = await User.create(req.body);
+        try {
+            req.body.password = Bcrypt.hashSync(req.body.password, 10);
+            const user = await User.create(req.body);
 
-        return res.json(user);
+            let message = {
+                from: `${process.env.ACCOUNT_NAME} <${process.env.ACCOUNT_EMAIL}>`,
+                to: req.body.email,
+                subject: 'Welcome',
+                text: 'Successful registration!',
+                html: '<p>Successful registration!</p>'
+            };
+            
+            console.log("User.store | message: ",message);
+
+            const responseEmail = sendUser(message);
+
+            console.log("User.store | responseEmail: ",responseEmail);
+    
+            return res.json(user);
+        } catch (error) {
+            console.log("User.store | error: ",error);
+            res.status(500).send(error);
+        }
     },
 
     async update(req, res) {
