@@ -5,14 +5,13 @@ const UserController = require('./controllers/UserController');
 const ProgressController = require('./controllers/ProgressController');
 const ProgressHistoricController = require('./controllers/ProgressHistoricController');
 
-routes.get("/users", verifyJWT, UserController.index);
-routes.get("/users/:id", verifyJWT, UserController.show);
-routes.post("/users", UserController.store);
-routes.put("/users/:id", verifyJWT, UserController.update);
-routes.delete("/users/:id", verifyJWT, UserController.destroy);
-routes.post("/login", UserController.login);
-routes.post("/forgot_password", UserController.forgotPassword);
-routes.post("/redefine_password", verifyJWT, UserController.redefinePassword);
+routes.get("/user/:id/profile", verifyJWT, UserController.profile);
+routes.post("/user/sign_up", UserController.signUp);
+routes.put("/user/:id", verifyJWT, UserController.update);
+routes.delete("/user/:id", verifyJWT, UserController.destroy);
+routes.post("/user/sign_in", UserController.signIn);
+routes.post("/user/forgot_password", UserController.forgotPassword);
+routes.post("/user/redefine_password", verifyJWT, UserController.redefinePassword);
 
 routes.get("/progress", verifyJWT, ProgressController.index);
 routes.get("/progress/:id", verifyJWT, ProgressController.show);

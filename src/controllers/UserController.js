@@ -6,21 +6,8 @@ const User = require('../models/User');
 const sendUser = require('../utils/sendEmail');
 
 module.exports = {
-    async index(req, res) {
-        const users = await User.find();
 
-        const userWithoutPassword = users.map(user => {
-            // console.log("User.index | user: ",user);
-            let objectUser = user.toObject();
-            delete objectUser.password;
-            return objectUser;
-        });
-
-        // console.log("User.index | user: ",userWithoutPassword);
-        return res.json(userWithoutPassword);
-    },
-
-    async show(req, res) {
+    async profile(req, res) {
         try {
 
             const user = await User.findById(req.params.id);
@@ -44,7 +31,7 @@ module.exports = {
         }
     },
 
-    async store(req, res) {
+    async signUp(req, res) {
         try {
             req.body.password = Bcrypt.hashSync(req.body.password, 10);
             const user = await User.create(req.body);
@@ -110,7 +97,7 @@ module.exports = {
         }
     },
 
-    async login(req, res) {
+    async signIn(req, res) {
         try {
             var user = await User.findOne({ email: req.body.email });
             if(!user) {
