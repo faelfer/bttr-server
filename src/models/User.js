@@ -15,11 +15,7 @@ const UserSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true,
-    },
-    token: {
-        type: String,
-        default: null,
-    },
+    }
 });
 
 module.exports = mongoose.model('User', UserSchema);
