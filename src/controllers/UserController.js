@@ -10,16 +10,13 @@ module.exports = {
     async profile(req, res) {
         try {
 
-            const user = await User.findById(req.params.id);
+            const user = await User.findById(req.userId);
             console.log("User.show | user: ",user);
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
             }
             console.log("User.show | req.userId: ",req.userId);
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
 
             var userWithoutPassword = user.toObject();
             delete userWithoutPassword.password;
@@ -107,9 +104,7 @@ module.exports = {
                 return res.status(403).send({ message: "The password is invalid" });
             }
 
-            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', { expiresIn: "14 days" });
-
-            await User.findByIdAndUpdate(user["_id"], {token});
+            const token = jwt.sign({ id: user["_id"] }, process.env.JWT_SECRET, { expiresIn: "14 days" });
 
             res.send({ 
                 auth: true,

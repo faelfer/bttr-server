@@ -5,7 +5,7 @@ module.exports = function verifyJWT(req, res, next){
     if (!token) return res.status(401).send({ auth: false, message: 'No token provided.' });
 
     try {
-      var decoded = jwt.verify(token, 'bttr-server');
+      var decoded = jwt.verify(token, process.env.JWT_SECRET);
 
       req.userId = decoded.id;
       next();
