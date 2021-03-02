@@ -18,6 +18,10 @@ module.exports = {
                     user: user["_id"]
             });
 
+            if(!progress) {
+                return res.status(400).send({ message: "Progress does not exist" });
+            }
+
             return res.json(progress);
         } catch (error) {
             console.log("Progress.index | error: ",error);

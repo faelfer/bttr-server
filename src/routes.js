@@ -21,12 +21,12 @@ routes.put("/progress/:id/add_minutes", verifyJWT, ProgressController.addMinutes
 routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
 
 routes.get("/progress_historic", verifyJWT, ProgressHistoricController.index);
-routes.get("/progress_historic/:id", ProgressHistoricController.show);
-routes.get("/progress_historic/filter_by_progress/:id", ProgressHistoricController.filterByProgress);
-routes.post("/progress_historic", ProgressHistoricController.store);
+routes.get("/progress_historic/:id", verifyJWT, ProgressHistoricController.show);
+routes.get("/progress_historic/filter_by_progress/:id", verifyJWT, ProgressHistoricController.filterByProgress);
+routes.post("/progress_historic", verifyJWT, ProgressHistoricController.store);
 routes.put("/progress_historic/:id", verifyJWT, ProgressHistoricController.update);
 routes.delete("/progress_historic/:id", verifyJWT, ProgressHistoricController.destroy);
-routes.get("/progress_historic/extract/:id", verifyJWT, ProgressHistoricController.historicMonth);
+routes.get("/progress_historic/historic_month/:id", verifyJWT, ProgressHistoricController.historicMonth);
 
 routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');
