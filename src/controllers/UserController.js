@@ -80,14 +80,14 @@ module.exports = {
 
     async destroy(req, res) {
         try {
+            if(req.userId != user._id) {
+                return res.status(403).send({ message: "Access was not authorized" });
+            }
+            
             const user = await User.findByIdAndRemove(req.params.id);
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
-            }
-
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
             }
 
             res.send({ message: "successfully deleted" });

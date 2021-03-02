@@ -3,7 +3,7 @@ const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 
 const ProgressSchema = new mongoose.Schema({
-    goalAdded: {
+    minutes: {
         type: Number,
         required: true,
     },
@@ -11,7 +11,7 @@ const ProgressSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Progress'
     },
-    ProgressName: {
+    progressName: {
         type: String,
         required: true,
     },
