@@ -56,7 +56,7 @@ module.exports = {
 
             const time = await Time.find({ 
                     user: req.userId,
-                    progress: req.params.id
+                    abiliity: req.params.id
             });
 
             if(!time) {
@@ -147,7 +147,7 @@ module.exports = {
             const time = await Time.find({ 
                 createAt: { $gte: beginMonthDate, $lte: endMonthDate }, 
                 user: req.userId,
-                progress: req.params.id
+                abiliity: req.params.id
             });
 
             if(!time) {

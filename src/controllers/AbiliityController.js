@@ -120,13 +120,13 @@ module.exports = {
 
 
             console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity);
-            const abiliity = await Abiliity.findByIdAndUpdate(
+            const abiliityNew = await Abiliity.findByIdAndUpdate(
                 abiliity._id,
                 { "timeTotal": abiliity.timeTotal},
                 { new: true }
             );
 
-            console.log("Abiliity.addMinutes | abiliity: ",abiliity);
+            console.log("Abiliity.addMinutes | abiliityNew: ",abiliityNew);
 
             const time = await Time.create({
                 "minutes": req.body.minutes,
