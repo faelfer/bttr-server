@@ -1,8 +1,6 @@
 const Progress = require('../models/Progress');
 const User = require('../models/User');
 const ProgressHistoric = require('../models/ProgressHistoric');
-const workingDays = require('../utils/workingDays');
-const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 module.exports = {
     async index(req, res) {
