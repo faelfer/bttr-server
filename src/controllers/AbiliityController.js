@@ -1,6 +1,6 @@
 const Abiliity = require('../models/Abiliity');
 const User = require('../models/User');
-const ProgressHistoric = require('../models/ProgressHistoric');
+const Time = require('../models/Time');
 
 module.exports = {
     async index(req, res) {
@@ -8,6 +8,7 @@ module.exports = {
             console.log("Abiliity.index | req.userId: ",req.userId);
             const user = await User.findById(req.userId);
             console.log("Abiliity.index | user: ",user);
+
             if(!user) {
                 return res.status(400).send({ message: "User does not exist" });
             }
@@ -30,8 +31,8 @@ module.exports = {
     async show(req, res) {
         try{
             console.log("Abiliity.show | req.userId: ",req.userId);
-
             console.log("Abiliity.show | req.params.id: ",req.params.id);
+
             const abiliity = await Abiliity.find({ 
                     user: req.userId,
                     _id: req.params.id
@@ -54,7 +55,7 @@ module.exports = {
             const user = await User.findById(req.userId);
             console.log("Abiliity.store | user: ",user);
             if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
+                return res.status(400).send({ message: "User does not exist" });
             }
             console.log("Abiliity.store | req.userId: ",req.userId);
             console.log("Abiliity.store | user: ",user["_id"]);
@@ -63,7 +64,7 @@ module.exports = {
             const abiliity = await Abiliity.create(req.body);
 
             if(!abiliity) {
-                return res.status(400).send({ message: "The abiliity does not exist" });
+                return res.status(400).send({ message: "Abiliity does not exist" });
             }
 
             return res.json(abiliity);
@@ -105,7 +106,7 @@ module.exports = {
             console.log("Abiliity.addMinutes | req.params.id: ",req.params.id);
             console.log("Abiliity.addMinutes | req.body.minutes: ",req.body.minutes);
             
-            let abiliity = await Abiliity.find({ 
+            let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
                     _id: req.params.id
             });
@@ -113,30 +114,30 @@ module.exports = {
             if(!abiliity) {
                 return res.status(400).send({ message: "Abiliity or user does not exist" });
             }
-            console.log("Abiliity.addMinutes | abiliity[0]: ",abiliity[0]);
+            console.log("Abiliity.addMinutes | abiliity: ",abiliity);
 
-            abiliity[0].goalDone = abiliity[0].goalDone + req.body.minutes;
+            abiliity.timeTotal = abiliity.timeTotal + req.body.minutes;
 
 
-            console.log("Abiliity.addMinutes | abiliity.goalDone: ",abiliity[0]);
-            const progressNew = await Abiliity.findByIdAndUpdate(
-                abiliity[0]._id,
-                { "goalDone": abiliity[0].goalDone},
+            console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity);
+            const abiliity = await Abiliity.findByIdAndUpdate(
+                abiliity._id,
+                { "timeTotal": abiliity.timeTotal},
                 { new: true }
             );
 
-            console.log("Abiliity.addMinutes | progressNew: ",progressNew);
+            console.log("Abiliity.addMinutes | abiliity: ",abiliity);
 
-            const historic = await ProgressHistoric.create({
+            const time = await Time.create({
                 "minutes": req.body.minutes,
-                "abiliity": abiliity[0]._id,
-                "progressName": abiliity[0].name,
-                "user": abiliity[0].user
+                "abiliity": abiliity._id,
+                "abiliityName": abiliity.name,
+                "user": abiliity.user
             }
             );
-            console.log("Abiliity.addMinutes | historic: ",historic);
+            console.log("Abiliity.addMinutes | time: ",time);
 
-            return res.json(progressNew);
+            return res.json(time);
         } catch (error) {
             console.log("Abiliity.addMinutes | error: ",error);
             res.status(500).send(error);
@@ -153,7 +154,7 @@ module.exports = {
             );
 
             if(!abiliity) {
-                return res.status(400).send({ message: "The abiliity does not exist" });
+                return res.status(400).send({ message: "Abiliity does not exist" });
             }
 
             res.send({ message: "successfully deleted" });

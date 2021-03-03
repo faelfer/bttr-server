@@ -6,16 +6,12 @@ const AbiliitySchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    goalPerDay: {
+    timeDaily: {
         type: Number,
         required: true,
     },
-    goalDone: {
+    timeTotal: {
         type: Number,
-        required: true,
-    },
-    icon: {
-        type: String,
         required: true,
     },
     user: {
