@@ -134,53 +134,28 @@ module.exports = {
     },
 
     async historicMonth(req, res) {
-        try {
-            const user = await User.findById(req.userId);
-            
-            if(!user) {
-                return res.status(400).send({ message: "The token does not exist" });
-            }
-            
-            console.log("ProgressHistoric.progressMonth | user: ",user["_id"]);
+        try {            
+            console.log("ProgressHistoric.progressMonth | user: ",req.userId);
+            console.log("ProgressHistoric.filterByProgress | req.params.id: ",req.params.id);
+
             const currentDate = new Date();
-            console.log("ProgressHistoric.progressMonth | currentDate.getDate(): ", currentDate.getDate())
+            const beginMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth()), 1 );
+            console.log("ProgressHistoric.progressMonth | beginMonthDate: ", beginMonthDate)
+            const endMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
+            console.log("ProgressHistoric.progressMonth | endMonthDate: ", endMonthDate)
+            
+            const progressHistoric = await ProgressHistoric.find({ 
+                createAt: { $gte: beginMonthDate, $lte: endMonthDate }, 
+                user: req.userId,
+                progress: req.params.id
+            });
 
-            if (currentDate.getDate() != 1) {
-                const manipulatedDateStart = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
-                console.log("ProgressHistoric.progressMonth | manipulatedDateStart: ", manipulatedDateStart)
-                const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
-                console.log("ProgressHistoric.progressMonth | manipulatedDateEnd: ", manipulatedDateEnd)
-
-                const progressHistoric = await ProgressHistoric.find({ 
-                    createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
-                    user: user["_id"]
-                });
-    
-                if(!progressHistoric) {
-                    return res.status(400).send({ message: "Progress historic does not exist" });
-                }
-    
-                return res.json(progressHistoric);
-
-            } else {
-                console.log("ProgressHistoric.progressMonth | else ");
-                const manipulatedDateStart = new Date( currentDate.getFullYear(), (currentDate.getMonth()), 1 );
-                console.log("ProgressHistoric.progressMonth | manipulatedDateStart: ", manipulatedDateStart)
-                const manipulatedDateEnd = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
-                console.log("ProgressHistoric.progressMonth | manipulatedDateEnd: ", manipulatedDateEnd)
-                
-                const progressHistoric = await ProgressHistoric.find({ 
-                    createAt: { $gte: manipulatedDateStart, $lte: manipulatedDateEnd }, 
-                    user: user["_id"]
-                });
-    
-                if(!progressHistoric) {
-                    return res.status(400).send({ message: "Progress historic does not exist" });
-                }
-    
-                return res.json(progressHistoric);
-
+            if(!progressHistoric) {
+                return res.status(400).send({ message: "Progress historic does not exist" });
             }
+
+            return res.json(progressHistoric);
+
         } catch (error) {
             console.log("ProgressHistoric.progressMonth | error: ",error);
             res.status(500).send(error);
