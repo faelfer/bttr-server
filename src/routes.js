@@ -2,7 +2,7 @@ const express = require('express');
 const routes = express.Router();
 const verifyJWT = require("./middleware/verifyJWT");
 const UserController = require('./controllers/UserController');
-const ProgressController = require('./controllers/ProgressController');
+const AbiliityController = require('./controllers/AbiliityController');
 const ProgressHistoricController = require('./controllers/ProgressHistoricController');
 
 routes.get("/user/profile", verifyJWT, UserController.profile);
@@ -13,12 +13,12 @@ routes.post("/user/sign_in", UserController.signIn);
 routes.post("/user/forgot_password", UserController.forgotPassword);
 routes.post("/user/redefine_password", verifyJWT, UserController.redefinePassword);
 
-routes.get("/progress", verifyJWT, ProgressController.index);
-routes.get("/progress/:id", verifyJWT, ProgressController.show);
-routes.post("/progress", verifyJWT, ProgressController.store);
-routes.put("/progress/:id", verifyJWT, ProgressController.update);
-routes.put("/progress/:id/add_minutes", verifyJWT, ProgressController.addMinutes);
-routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
+routes.get("/abiliity", verifyJWT, AbiliityController.index);
+routes.get("/abiliity/:id", verifyJWT, AbiliityController.show);
+routes.post("/abiliity", verifyJWT, AbiliityController.store);
+routes.put("/abiliity/:id", verifyJWT, AbiliityController.update);
+routes.put("/abiliity/:id/add_minutes", verifyJWT, AbiliityController.addMinutes);
+routes.delete("/abiliity/:id", verifyJWT, AbiliityController.destroy);
 
 routes.get("/progress_historic", verifyJWT, ProgressHistoricController.index);
 routes.get("/progress_historic/:id", verifyJWT, ProgressHistoricController.show);

@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const dateNowBrazil = require('../utils/timeZoneBrazil');
 
-const ProgressSchema = new mongoose.Schema({
+const AbiliitySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
@@ -28,4 +28,4 @@ const ProgressSchema = new mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Progress', ProgressSchema);
+module.exports = mongoose.model('Abiliity', AbiliitySchema);
