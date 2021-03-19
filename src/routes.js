@@ -7,8 +7,8 @@ const TimeController = require('./controllers/TimeController');
 
 routes.get("/user/profile", verifyJWT, UserController.profile);
 routes.post("/user/sign_up", UserController.signUp);
-routes.put("/user/:id", verifyJWT, UserController.update);
-routes.delete("/user", verifyJWT, UserController.destroy);
+routes.put("/user/profile", verifyJWT, UserController.update);
+routes.delete("/user/profile", verifyJWT, UserController.destroy);
 routes.post("/user/sign_in", UserController.signIn);
 routes.post("/user/forgot_password", UserController.forgotPassword);
 routes.post("/user/redefine_password", verifyJWT, UserController.redefinePassword);

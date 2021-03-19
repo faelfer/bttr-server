@@ -55,7 +55,7 @@ module.exports = {
 
     async update(req, res) {
         try {
-            const user = await User.findByIdAndUpdate(req.params.id, req.body, {
+            const user = await User.findByIdAndUpdate(req.userId, req.body, {   
                 new: true
             });
 
