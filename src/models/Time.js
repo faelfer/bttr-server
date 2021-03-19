@@ -11,10 +11,6 @@ const TimeSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Abiliity'
     },
-    abiliityName: {
-        type: String,
-        required: true,
-    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User'

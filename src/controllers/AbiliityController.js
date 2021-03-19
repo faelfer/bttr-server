@@ -131,7 +131,6 @@ module.exports = {
             const time = await Time.create({
                 "minutes": req.body.minutes,
                 "abiliity": abiliity._id,
-                "abiliityName": abiliity.name,
                 "user": abiliity.user
             }
             );

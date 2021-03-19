@@ -22,7 +22,7 @@ routes.delete("/abiliity/:id", verifyJWT, AbiliityController.destroy);
 
 routes.get("/time", verifyJWT, TimeController.index);
 routes.get("/time/:id", verifyJWT, TimeController.show);
-routes.get("/time/filter_by_progress/:id", verifyJWT, TimeController.filterByProgress);
+routes.get("/time/filter_by_abiliity/:id", verifyJWT, TimeController.filterByAbiliity);
 routes.post("/time", verifyJWT, TimeController.store);
 routes.put("/time/:id", verifyJWT, TimeController.update);
 routes.delete("/time/:id", verifyJWT, TimeController.destroy);
