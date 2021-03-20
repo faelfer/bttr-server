@@ -5,14 +5,9 @@ module.exports = {
     async index(req, res) {
         try {
             console.log("Time.index | req.userId: ",req.userId);
-            const user = await User.findById(req.userId);
-            console.log("Time.index | user: ",user);
-            if(!user) {
-                return res.status(400).send({ message: "User does not exist" });
-            }
 
             const time = await Time.find({ 
-                    user: user["_id"]
+                    user: req.userId
             }).populate('abiliity');
 
             if(!time) {
@@ -73,14 +68,8 @@ module.exports = {
     async store(req, res) {
         try{
             console.log("Time.store | req.userId: ",req.userId);
-            const user = await User.findById(req.userId);
-            console.log("Time.store | user: ",user);
-            if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
-            }
-            console.log("Time.store | req.userId: ",req.userId);
-            console.log("Time.store | user: ",user["_id"]);
-            req.body.user = user["_id"];
+
+            req.body.user = req.userId;
             console.log("Time.store | req.body: ",req.body);
             const time = await Time.create(req.body);
 

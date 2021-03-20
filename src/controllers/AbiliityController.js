@@ -5,16 +5,8 @@ const Time = require('../models/Time');
 module.exports = {
     async index(req, res) {
         try {
-            console.log("Abiliity.index | req.userId: ",req.userId);
-            const user = await User.findById(req.userId);
-            console.log("Abiliity.index | user: ",user);
-
-            if(!user) {
-                return res.status(400).send({ message: "User does not exist" });
-            }
-
             const abiliity = await Abiliity.find({ 
-                    user: user["_id"]
+                    user: req.userId
             });
 
             if(!abiliity) {
@@ -52,14 +44,8 @@ module.exports = {
     async store(req, res) {
         try{
             console.log("Abiliity.store | req.userId: ",req.userId);
-            const user = await User.findById(req.userId);
-            console.log("Abiliity.store | user: ",user);
-            if(!user) {
-                return res.status(400).send({ message: "User does not exist" });
-            }
-            console.log("Abiliity.store | req.userId: ",req.userId);
-            console.log("Abiliity.store | user: ",user["_id"]);
-            req.body.user = user["_id"];
+
+            req.body.user = req.userId;
             console.log("Abiliity.store | req.body: ",req.body);
             const abiliity = await Abiliity.create(req.body);
 
@@ -104,8 +90,9 @@ module.exports = {
         try {
             console.log("Abiliity.addMinutes | req.userId: ",req.userId);
             console.log("Abiliity.addMinutes | req.params.id: ",req.params.id);
-            console.log("Abiliity.addMinutes | req.body.minutes: ",req.body.minutes);
-            
+            console.log("Abiliity.addMinutes | req.body.minutes: ",req.body.minutes, typeof req.body.minutes);
+            req.body.minutes = parseInt(req.body.minutes);
+
             let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
                     _id: req.params.id
@@ -115,9 +102,9 @@ module.exports = {
                 return res.status(400).send({ message: "Abiliity or user does not exist" });
             }
             console.log("Abiliity.addMinutes | abiliity: ",abiliity);
+            console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity.timeTotal, typeof abiliity.timeTotal);
 
             abiliity.timeTotal = abiliity.timeTotal + req.body.minutes;
-
 
             console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity);
             const abiliityNew = await Abiliity.findByIdAndUpdate(

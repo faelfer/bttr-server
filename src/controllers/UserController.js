@@ -59,14 +59,6 @@ module.exports = {
                 new: true
             });
 
-            if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
-            }
-
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
-
             return res.json(user);
         } catch (error) {
             console.log("User.update | error: ",error);
