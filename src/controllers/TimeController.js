@@ -1,5 +1,5 @@
 const Time = require('../models/Time');
-const User = require('../models/User');
+const Abiliity = require('../models/Abiliity')
 
 module.exports = {
     async index(req, res) {
@@ -86,21 +86,94 @@ module.exports = {
 
     async update(req, res) {
         try {
-            const time = await Time.findOneAndUpdate({ 
-                user: req.userId,
-                _id: req.params.id,
-            },
-                req.body,
-            { 
-                new: true 
-            }
-            );
+            const timeUnchanged = await Time.findById(req.params.id);
 
-            if(!time) {
-                return res.status(400).send({ message: "Time does not exist" });
+            if (req.body.abiliity == timeUnchanged.abiliity._id) {
+                // subtrair os minutes anteriores
+                // adicionar os minutos atualizados
+                let abiliity = await Abiliity.findOne({ 
+                    user: req.userId,
+                    _id: req.body.abiliity
+                });
+    
+                abiliity.timeTotal = (abiliity.timeTotal - timeUnchanged.minutes) + req.body.minutes;
+
+                const time = await Time.findOneAndUpdate({ 
+                    user: req.userId,
+                    _id: req.params.id,
+                },
+                    req.body,
+                { 
+                    new: true 
+                }
+                );
+    
+                console.log("Time.update | abiliity.timeTotal: ",abiliity);
+                const abiliityNew = await Abiliity.findByIdAndUpdate(
+                    req.body.abiliity,
+                    { "timeTotal": abiliity.timeTotal},
+                    { new: true }
+                );
+                console.log("Time.update | abiliityNew: ",abiliityNew);
+    
+                if(!time) {
+                    return res.status(400).send({ message: "Time does not exist" });
+                }
+
+                return res.json(time);
+
+            } else {
+                // subtrair os minutos da habilidade anterior
+                // adicionar os minutos a nova habilidade atribuida
+                let abiliity = await Abiliity.findOne({ 
+                    user: req.userId,
+                    _id: timeUnchanged.abiliity._id
+                });
+    
+                abiliity.timeTotal = abiliity.timeTotal - timeUnchanged.minutes;
+
+                const time = await Time.findOneAndUpdate({ 
+                    user: req.userId,
+                    _id: req.params.id,
+                },
+                    req.body,
+                { 
+                    new: true 
+                }
+                );
+    
+                if(!time) {
+                    return res.status(400).send({ message: "Time does not exist" });
+                }
+                
+                console.log("Time.update | abiliity.timeTotal: ",abiliity);
+                const abiliityNew = await Abiliity.findByIdAndUpdate(
+                    timeUnchanged.abiliity._id,
+                    { "timeTotal": abiliity.timeTotal},
+                    { new: true }
+                );
+
+                console.log("Time.update | abiliityNew: ",abiliityNew);
+
+                let abiliityChanged = await Abiliity.findOne({ 
+                    user: req.userId,
+                    _id: req.body.abiliity
+                });
+
+                abiliityChanged.timeTotal = abiliityChanged.timeTotal + req.body.minutes;
+
+                const abiliityChangedNew = await Abiliity.findByIdAndUpdate(
+                    abiliityChanged._id,
+                    { "timeTotal": abiliityChanged.timeTotal},
+                    { new: true }
+                );
+
+                console.log("Time.update | abiliityChangedNew: ",abiliityChangedNew);
+
+                return res.json(time);
+
             }
 
-            return res.json(time);
         } catch (error) {
             console.log("Time.update | error: ",error);
             res.status(500).send(error);
@@ -109,11 +182,29 @@ module.exports = {
 
     async destroy(req, res) {
         try {
+            
+            const timeUnchanged = await Time.findById(req.params.id);
+
+            let abiliity = await Abiliity.findOne({ 
+                user: req.userId,
+                _id: timeUnchanged.abiliity._id
+            });
+
+            abiliity.timeTotal = abiliity.timeTotal - timeUnchanged.minutes;
+
             const time = await Time.findByIdAndRemove(req.params.id);
 
             if(!time) {
                 return res.status(400).send({ message: "Time does not exist" });
             }
+
+            const abiliityNew = await Abiliity.findByIdAndUpdate(
+                timeUnchanged.abiliity._id,
+                { "timeTotal": abiliity.timeTotal},
+                { new: true }
+            );
+
+            console.log("Time.update | abiliityNew: ",abiliityNew);
 
             res.send({ message: "successfully deleted" });
         } catch (error) {

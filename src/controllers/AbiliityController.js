@@ -1,5 +1,4 @@
 const Abiliity = require('../models/Abiliity');
-const User = require('../models/User');
 const Time = require('../models/Time');
 
 module.exports = {
@@ -91,7 +90,6 @@ module.exports = {
             console.log("Abiliity.addMinutes | req.userId: ",req.userId);
             console.log("Abiliity.addMinutes | req.params.id: ",req.params.id);
             console.log("Abiliity.addMinutes | req.body.minutes: ",req.body.minutes, typeof req.body.minutes);
-            req.body.minutes = parseInt(req.body.minutes);
 
             let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
