@@ -4,9 +4,8 @@ const Time = require('../models/Time');
 module.exports = {
     async abiliityList(req, res) {
         try {
-            const abiliity = await Abiliity.find({ 
-                    user: req.userId
-            });
+            const { page = 1 } = req.query;
+            const abiliity = await Abiliity.paginate({ user: req.userId }, { page, limit: 6 });
 
             if(!abiliity) {
                 return res.status(400).send({ message: "Abiliity does not exist" });
