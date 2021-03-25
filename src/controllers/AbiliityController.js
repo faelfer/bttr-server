@@ -4,14 +4,33 @@ const Time = require('../models/Time');
 module.exports = {
     async abiliityList(req, res) {
         try {
-            const { page = 1 } = req.query;
-            const abiliity = await Abiliity.paginate({ user: req.userId }, { page, limit: 6 });
+            const { page } = req.query;
 
-            if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity does not exist" });
+            if (page) {
+                const abiliity = await Abiliity.paginate({
+                    user: req.userId 
+                }, 
+                { 
+                    page, 
+                    limit: 6 
+                });
+    
+                if(!abiliity) {
+                    return res.status(400).send({ message: "Abiliity does not exist" });
+                }
+    
+                return res.json(abiliity);
+            } else {
+                const abiliity = await Abiliity.find({ user: req.userId })
+    
+                if(!abiliity) {
+                    return res.status(400).send({ message: "Abiliity does not exist" });
+                }
+    
+                return res.json(abiliity);
+
             }
 
-            return res.json(abiliity);
         } catch (error) {
             console.log("Abiliity.index | error: ",error);
             res.status(500).send(error);

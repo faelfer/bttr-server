@@ -6,9 +6,15 @@ module.exports = {
         try {
             console.log("Time.index | req.userId: ",req.userId);
 
-            const time = await Time.find({ 
-                    user: req.userId
-            }).populate('abiliity');
+            const { page = 1 } = req.query;
+            const time = await Time.paginate({
+                user: req.userId 
+            }, 
+            { 
+                page, 
+                limit: 5,
+                populate: 'abiliity'
+            });
 
             if(!time) {
                 return res.status(400).send({ message: "Time does not exist" });
@@ -49,10 +55,16 @@ module.exports = {
             console.log("Time.filterByAbiliity | req.userId: ",req.userId);
             console.log("Time.filterByAbiliity | req.params.id: ",req.params.id);
 
-            const time = await Time.find({ 
-                    user: req.userId,
-                    abiliity: req.params.id
-            }).populate('abiliity');
+            const { page = 1 } = req.query;
+            const time = await Time.paginate({
+                user: req.userId,
+                abiliity: req.params.id 
+            }, 
+            { 
+                page, 
+                limit: 5,
+                populate: 'abiliity' 
+            });
 
             if(!time) {
                 return res.status(400).send({ message: "Time or user does not exist" });
@@ -223,12 +235,18 @@ module.exports = {
             console.log("Time.progressMonth | beginMonthDate: ", beginMonthDate)
             const endMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
             console.log("Time.progressMonth | endMonthDate: ", endMonthDate)
-            
-            const time = await Time.find({ 
+
+            const { page = 1 } = req.query;
+            const time = await Time.paginate({
                 createAt: { $gte: beginMonthDate, $lte: endMonthDate }, 
                 user: req.userId,
                 abiliity: req.params.id
-            }).populate('abiliity');
+            }, 
+            { 
+                page, 
+                limit: 3,
+                populate: 'abiliity' 
+            });
 
             if(!time) {
                 return res.status(400).send({ message: "Time does not exist" });
