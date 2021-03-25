@@ -5,13 +5,13 @@ const UserController = require('./controllers/UserController');
 const AbiliityController = require('./controllers/AbiliityController');
 const TimeController = require('./controllers/TimeController');
 
-routes.get("/user/profile", verifyJWT, UserController.profile);
-routes.post("/user/sign_up", UserController.signUp);
+routes.get("/user/profile", verifyJWT, UserController.userProfile);
+routes.post("/user/sign_up", UserController.userSignUp);
 routes.put("/user/profile", verifyJWT, UserController.userUpdate);
 routes.delete("/user/profile", verifyJWT, UserController.userDelete);
-routes.post("/user/sign_in", UserController.signIn);
-routes.post("/user/forgot_password", UserController.forgotPassword);
-routes.post("/user/redefine_password", verifyJWT, UserController.redefinePassword);
+routes.post("/user/sign_in", UserController.userSignIn);
+routes.post("/user/forgot_password", UserController.userForgotPassword);
+routes.post("/user/redefine_password", verifyJWT, UserController.userRedefinePassword);
 
 routes.get("/abiliity", verifyJWT, AbiliityController.abiliityList);
 routes.get("/abiliity/:id", verifyJWT, AbiliityController.abiliityDetail);

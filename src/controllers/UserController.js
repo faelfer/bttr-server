@@ -7,7 +7,7 @@ const sendUser = require('../utils/sendEmail');
 
 module.exports = {
 
-    async profile(req, res) {
+    async userProfile(req, res) {
         try {
             const user = await User.findById(req.userId);
             console.log("User.show | user: ",user);
@@ -27,7 +27,7 @@ module.exports = {
         }
     },
 
-    async signUp(req, res) {
+    async userSignUp(req, res) {
         try {
             req.body.password = Bcrypt.hashSync(req.body.password, 10);
             const user = await User.create(req.body);
@@ -81,7 +81,7 @@ module.exports = {
         }
     },
 
-    async signIn(req, res) {
+    async userSignIn(req, res) {
         try {
             const user = await User.findOne({ email: req.body.email });
             if(!user) {
@@ -105,7 +105,7 @@ module.exports = {
         }
     },
 
-    async forgotPassword(req, res) {
+    async userForgotPassword(req, res) {
         try {
             const user = await User.findOne({ email: req.body.email });
             if(!user) {
@@ -143,7 +143,7 @@ module.exports = {
         }
     },
 
-    async redefinePassword(req, res) {
+    async userRedefinePassword(req, res) {
         try {
             console.log("redefinePassword | req.userId: ",req.userId);
             
