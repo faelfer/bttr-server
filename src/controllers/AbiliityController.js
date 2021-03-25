@@ -12,11 +12,12 @@ module.exports = {
                 }, 
                 { 
                     page, 
-                    limit: 6 
+                    limit: 6,
+                    select: "-user" 
                 });
     
                 if(!abiliity) {
-                    return res.status(400).send({ message: "Abiliity does not exist" });
+                    return res.status(400).send({ message: "abiliity does not exist" });
                 }
     
                 return res.json(abiliity);
@@ -24,7 +25,7 @@ module.exports = {
                 const abiliity = await Abiliity.find({ user: req.userId })
     
                 if(!abiliity) {
-                    return res.status(400).send({ message: "Abiliity does not exist" });
+                    return res.status(400).send({ message: "abiliity does not exist" });
                 }
     
                 return res.json(abiliity);
@@ -32,55 +33,55 @@ module.exports = {
             }
 
         } catch (error) {
-            console.log("Abiliity.index | error: ",error);
+            console.log("abiliityList | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async abiliityDetail(req, res) {
         try{
-            console.log("Abiliity.show | req.userId: ",req.userId);
-            console.log("Abiliity.show | req.params.id: ",req.params.id);
+            console.log("abiliityDetail | req.userId: ",req.userId);
+            console.log("abiliityDetail | req.params.id: ",req.params.id);
 
             const abiliity = await Abiliity.find({ 
                     user: req.userId,
                     _id: req.params.id
-            });
+            }).select("-user");
 
             if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity or user does not exist" });
+                return res.status(400).send({ message: "abiliity or user does not exist" });
             }
 
             return res.json(abiliity);
         } catch (error) {
-            console.log("Abiliity.show | error: ",error);
+            console.log("abiliityDetail | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async abiliityCreate(req, res) {
         try{
-            console.log("Abiliity.store | req.userId: ",req.userId);
+            console.log("abiliityCreate | req.userId: ",req.userId);
 
             req.body.user = req.userId;
-            console.log("Abiliity.store | req.body: ",req.body);
+            console.log("abiliityCreate | req.body: ",req.body);
             const abiliity = await Abiliity.create(req.body);
 
             if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity does not exist" });
+                return res.status(400).send({ message: "abiliity does not exist" });
             }
 
-            return res.json(abiliity);
+            return res.json({ message: "abiliity successfully created" });
         } catch (error) {
-            console.log("Abiliity.store | error: ",error);
+            console.log("abiliityCreate | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async abiliityUpdate(req, res) {      
         try{  
-            console.log("Abiliity.update | req.userId: ",req.userId);
-            console.log("Abiliity.update | req.params.id: ",req.params.id);
+            console.log("abiliityUpdate | req.userId: ",req.userId);
+            console.log("abiliityUpdate | req.params.id: ",req.params.id);
 
             const abiliity = await Abiliity.findOneAndUpdate({ 
                 user: req.userId,
@@ -90,24 +91,24 @@ module.exports = {
             { 
                 new: true 
             }
-            );
+            ).select("-user");
 
             if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity or user does not exist" });
+                return res.status(400).send({ message: "abiliity or user does not exist" });
             }
 
-            return res.json(abiliity);
+            return res.json({ message: "abiliity has been successfully edited" });
         } catch (error) {
-            console.log("Abiliity.update | error: ",error);
+            console.log("abiliityUpdate | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async abiliityAddMinutes(req, res) {
         try {
-            console.log("Abiliity.addMinutes | req.userId: ",req.userId);
-            console.log("Abiliity.addMinutes | req.params.id: ",req.params.id);
-            console.log("Abiliity.addMinutes | req.body.minutes: ",req.body.minutes, typeof req.body.minutes);
+            console.log("abiliityAddMinutes | req.userId: ",req.userId);
+            console.log("abiliityAddMinutes | req.params.id: ",req.params.id);
+            console.log("abiliityAddMinutes | req.body.minutes: ",req.body.minutes, typeof req.body.minutes);
 
             let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
@@ -115,33 +116,32 @@ module.exports = {
             });
 
             if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity or user does not exist" });
+                return res.status(400).send({ message: "abiliity or user does not exist" });
             }
-            console.log("Abiliity.addMinutes | abiliity: ",abiliity);
-            console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity.timeTotal, typeof abiliity.timeTotal);
+            console.log("abiliityAddMinutes | abiliity: ",abiliity);
+            console.log("abiliityAddMinutes | abiliity.timeTotal: ",abiliity.timeTotal, typeof abiliity.timeTotal);
 
             abiliity.timeTotal = abiliity.timeTotal + req.body.minutes;
 
-            console.log("Abiliity.addMinutes | abiliity.timeTotal: ",abiliity);
+            console.log("abiliityAddMinutes | abiliity.timeTotal: ",abiliity);
             const abiliityNew = await Abiliity.findByIdAndUpdate(
                 abiliity._id,
                 { "timeTotal": abiliity.timeTotal},
                 { new: true }
             );
 
-            console.log("Abiliity.addMinutes | abiliityNew: ",abiliityNew);
+            console.log("abiliityAddMinutes | abiliityNew: ",abiliityNew);
 
             const time = await Time.create({
                 "minutes": req.body.minutes,
                 "abiliity": abiliity._id,
                 "user": abiliity.user
-            }
-            );
-            console.log("Abiliity.addMinutes | time: ",time);
+            });
+            console.log("abiliityAddMinutes | time: ",time);
 
-            return res.json(time);
+            return res.json({ message: "minutes successfully added to abiliity" });
         } catch (error) {
-            console.log("Abiliity.addMinutes | error: ",error);
+            console.log("abiliityAddMinutes | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -156,12 +156,12 @@ module.exports = {
             );
 
             if(!abiliity) {
-                return res.status(400).send({ message: "Abiliity does not exist" });
+                return res.status(400).send({ message: "abiliity does not exist" });
             }
 
-            res.send({ message: "successfully deleted" });
+            res.send({ message: "abiliity successfully deleted" });
         } catch (error) {
-            console.log("Abiliity.destroy | error: ",error);
+            console.log("abiliityDelete | error: ",error);
             res.status(500).send({ message: error.message });
         }
     },

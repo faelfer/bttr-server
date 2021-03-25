@@ -13,39 +13,40 @@ module.exports = {
             { 
                 page, 
                 limit: 5,
-                populate: 'abiliity'
+                populate: { path: 'abiliity', select: '-user' },
+                select: "-user"
             });
 
             if(!time) {
-                return res.status(400).send({ message: "Time does not exist" });
+                return res.status(400).send({ message: "time does not exist" });
             }
 
             return res.json(time);
         } catch (error) {
-            console.log("Time.index | error: ",error);
+            console.log("timeList | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async timeDetail(req, res) {
         try{
-            console.log("Time.show | req.userId: ",req.userId);
-            console.log("Time.show | req.params.id: ",req.params.id);
+            console.log("timeDetail | req.userId: ",req.userId);
+            console.log("timeDetail | req.params.id: ",req.params.id);
 
             const time = await Time.findOne({ 
                     user: req.userId,
                     _id: req.params.id
-            }).populate('abiliity');
+            }).populate({ path: 'abiliity', select: '-user' }).select("-user");
 
-            console.log("Time.show | time: ",time);
+            console.log("timeDetail | time: ",time);
 
             if(!time) {
-                return res.status(400).send({ message: "Time or user does not exist" });
+                return res.status(400).send({ message: "time or user does not exist" });
             }
 
             return res.json(time);
         } catch (error) {
-            console.log("Time.show | error: ",error);
+            console.log("timeDetail | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -63,7 +64,8 @@ module.exports = {
             { 
                 page, 
                 limit: 5,
-                populate: 'abiliity' 
+                populate: { path: 'abiliity', select: '-user' },
+                select: "-user" 
             });
 
             if(!time) {
@@ -79,19 +81,19 @@ module.exports = {
 
     async timeCreate(req, res) {
         try{
-            console.log("Time.store | req.userId: ",req.userId);
+            console.log("timeCreate | req.userId: ",req.userId);
 
             req.body.user = req.userId;
-            console.log("Time.store | req.body: ",req.body);
+            console.log("timeCreate | req.body: ",req.body);
             const time = await Time.create(req.body);
 
             if(!time) {
                 return res.status(400).send({ message: "Time does not exist" });
             }
 
-            return res.json(time);
+            return res.json({ message: "time successfully created" });
         } catch (error) {
-            console.log("Time.store | error: ",error);
+            console.log("timeCreate | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -101,8 +103,6 @@ module.exports = {
             const timeUnchanged = await Time.findById(req.params.id);
 
             if (req.body.abiliity == timeUnchanged.abiliity._id) {
-                // subtrair os minutes anteriores
-                // adicionar os minutos atualizados
                 let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
                     _id: req.body.abiliity
@@ -120,23 +120,21 @@ module.exports = {
                 }
                 );
     
-                console.log("Time.update | abiliity.timeTotal: ",abiliity);
+                console.log("timeUpdate | abiliity.timeTotal: ",abiliity);
                 const abiliityNew = await Abiliity.findByIdAndUpdate(
                     req.body.abiliity,
                     { "timeTotal": abiliity.timeTotal},
                     { new: true }
                 );
-                console.log("Time.update | abiliityNew: ",abiliityNew);
+                console.log("timeUpdate | abiliityNew: ",abiliityNew);
     
                 if(!time) {
                     return res.status(400).send({ message: "Time does not exist" });
                 }
 
-                return res.json(time);
+                return res.json({ message: "time has been successfully edited" });
 
             } else {
-                // subtrair os minutos da habilidade anterior
-                // adicionar os minutos a nova habilidade atribuida
                 let abiliity = await Abiliity.findOne({ 
                     user: req.userId,
                     _id: timeUnchanged.abiliity._id
@@ -155,17 +153,17 @@ module.exports = {
                 );
     
                 if(!time) {
-                    return res.status(400).send({ message: "Time does not exist" });
+                    return res.status(400).send({ message: "time does not exist" });
                 }
                 
-                console.log("Time.update | abiliity.timeTotal: ",abiliity);
+                console.log("timeUpdate | abiliity.timeTotal: ",abiliity);
                 const abiliityNew = await Abiliity.findByIdAndUpdate(
                     timeUnchanged.abiliity._id,
                     { "timeTotal": abiliity.timeTotal},
                     { new: true }
                 );
 
-                console.log("Time.update | abiliityNew: ",abiliityNew);
+                console.log("timeUpdate | abiliityNew: ",abiliityNew);
 
                 let abiliityChanged = await Abiliity.findOne({ 
                     user: req.userId,
@@ -180,14 +178,14 @@ module.exports = {
                     { new: true }
                 );
 
-                console.log("Time.update | abiliityChangedNew: ",abiliityChangedNew);
+                console.log("timeUpdate | abiliityChangedNew: ",abiliityChangedNew);
 
-                return res.json(time);
+                return res.json({ message: "time has been successfully edited" });
 
             }
 
         } catch (error) {
-            console.log("Time.update | error: ",error);
+            console.log("timeUpdate | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -216,25 +214,25 @@ module.exports = {
                 { new: true }
             );
 
-            console.log("Time.update | abiliityNew: ",abiliityNew);
+            console.log("timeDelete | abiliityNew: ",abiliityNew);
 
-            res.send({ message: "successfully deleted" });
+            res.send({ message: "time successfully deleted" });
         } catch (error) {
-            console.log("Time.destroy | error: ",error);
+            console.log("timeDelete | error: ",error);
             res.status(500).send({ message: error.message });
         }
     },
     
     async timeFilterByAbiliityAndCreatedInCurrentMonth(req, res) {
         try {            
-            console.log("Time.progressMonth | user: ",req.userId);
-            console.log("Time.filterByAbiliity | req.params.id: ",req.params.id);
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | user: ",req.userId);
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | req.params.id: ",req.params.id);
 
             const currentDate = new Date();
             const beginMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth()), 1 );
-            console.log("Time.progressMonth | beginMonthDate: ", beginMonthDate)
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | beginMonthDate: ", beginMonthDate)
             const endMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
-            console.log("Time.progressMonth | endMonthDate: ", endMonthDate)
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | endMonthDate: ", endMonthDate)
 
             const { page = 1 } = req.query;
             const time = await Time.paginate({
@@ -245,7 +243,8 @@ module.exports = {
             { 
                 page, 
                 limit: 3,
-                populate: 'abiliity' 
+                populate: { path: 'abiliity', select: '-user' },
+                select: "-user" 
             });
 
             if(!time) {
@@ -255,7 +254,7 @@ module.exports = {
             return res.json(time);
 
         } catch (error) {
-            console.log("Time.progressMonth | error: ",error);
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | error: ",error);
             res.status(500).send(error);
         }
     },

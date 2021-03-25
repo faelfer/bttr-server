@@ -9,20 +9,13 @@ module.exports = {
 
     async userProfile(req, res) {
         try {
-            const user = await User.findById(req.userId);
-            console.log("User.show | user: ",user);
+            console.log("userProfile | req.userId: ",req.userId);
+            const user = await User.findById(req.userId).select("-_id -password")
+            console.log("userProfile | user: ",user);
 
-            if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
-            }
-            console.log("User.show | req.userId: ",req.userId);
-
-            var userWithoutPassword = user.toObject();
-            delete userWithoutPassword.password;
-
-            return res.json(userWithoutPassword);
+            return res.json(user);
         } catch (error) {
-            console.log("User.show | error: ",error);
+            console.log("userProfile | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -40,15 +33,15 @@ module.exports = {
                 html: '<p>Successful registration!</p>'
             };
             
-            console.log("User.store | message: ",message);
+            console.log("userSignUp | message: ",message);
 
             const responseEmail = sendUser(message);
 
-            console.log("User.store | responseEmail: ",responseEmail);
+            console.log("userSignUp | responseEmail: ",responseEmail);
     
-            return res.json(user);
+            return res.json({ message: "user successfully created" });
         } catch (error) {
-            console.log("User.store | error: ",error);
+            console.log("userSignUp | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -59,9 +52,9 @@ module.exports = {
                 new: true
             });
 
-            return res.json(user);
+            return res.json({ message: "user has been successfully edited" });
         } catch (error) {
-            console.log("User.update | error: ",error);
+            console.log("userUpdate | error: ",error);
             res.status(500).send(error);
         }
     },
@@ -74,9 +67,9 @@ module.exports = {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
-            res.send({ message: "successfully deleted" });
+            res.send({ message: "user successfully deleted" });
         } catch (error) {
-            console.log("User.destroy | error: ",error);
+            console.log("userDelete | error: ",error);
             res.status(500).send({ message: error.message });
         }
     },
@@ -96,7 +89,7 @@ module.exports = {
             res.send({ 
                 auth: true,
                 token, 
-                message: "E-mail and password are correct!" 
+                message: "e-mail and password are correct!" 
             });
             
         } catch (error) {
@@ -109,11 +102,11 @@ module.exports = {
         try {
             const user = await User.findOne({ email: req.body.email });
             if(!user) {
-                return res.status(400).send({ message: "The email does not exist" });
+                return res.status(400).send({ message: "email does not exist" });
             }
 
             const randomText = Math.random().toString(36).slice(2); 
-            console.log("User.forgotPassword | new password: ",randomText);
+            console.log("userForgotPassword | new password: ",randomText);
 
             let encryptedPassword = Bcrypt.hashSync(randomText, 10);
 
@@ -130,22 +123,22 @@ module.exports = {
                 html: `<p><strong>Your New Password:</strong> ${randomText}</p>`
             };
             
-            console.log("User.store | message: ",message);
+            console.log("userForgotPassword| message: ",message);
 
             const responseEmail = sendUser(message);
 
-            console.log("User.store | responseEmail: ",responseEmail);
+            console.log("userForgotPassword| responseEmail: ",responseEmail);
 
-            res.send({ message: "Your new password was successfully generated and sent to the email registered in the profile." });
+            res.send({ message: "your new password was successfully generated and sent to the email registered in the profile." });
         } catch (error) {
-            console.log("User.forgotPassword | error: ",error);
+            console.log("userForgotPassword | error: ",error);
             res.status(500).send(error);
         }
     },
 
     async userRedefinePassword(req, res) {
         try {
-            console.log("redefinePassword | req.userId: ",req.userId);
+            console.log("userRedefinePassword | req.userId: ",req.userId);
             
             if(req.body.newPassword !== req.body.confirmNewPassword) {
                 return res.status(400).send({ message: "Password and confirm password fields are different" });
@@ -176,15 +169,15 @@ module.exports = {
                 html: '<p>If you have not changed your password, contact us immediately.</p>'
             };
             
-            console.log("User.store | message: ",message);
+            console.log("userRedefinePassword | message: ",message);
 
             const responseEmail = sendUser(message);
 
-            console.log("User.store | responseEmail: ",responseEmail);
+            console.log("userRedefinePassword | responseEmail: ",responseEmail);
 
-            res.send({ message: "Password successfully reset!" });
+            res.send({ message: "password successfully reset!" });
         } catch (error) {
-            console.log("User.redefinePassword | error: ",error);
+            console.log("User.userRedefinePassword | error: ",error);
             res.status(500).send(error);
         }
 
