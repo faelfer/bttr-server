@@ -2,7 +2,7 @@ const Time = require('../models/Time');
 const Abiliity = require('../models/Abiliity')
 
 module.exports = {
-    async index(req, res) {
+    async timeList(req, res) {
         try {
             console.log("Time.index | req.userId: ",req.userId);
 
@@ -21,7 +21,7 @@ module.exports = {
         }
     },
 
-    async show(req, res) {
+    async timeDetail(req, res) {
         try{
             console.log("Time.show | req.userId: ",req.userId);
             console.log("Time.show | req.params.id: ",req.params.id);
@@ -44,7 +44,7 @@ module.exports = {
         }
     },
 
-    async filterByAbiliity(req, res) {
+    async timeFilterByAbiliity(req, res) {
         try{
             console.log("Time.filterByAbiliity | req.userId: ",req.userId);
             console.log("Time.filterByAbiliity | req.params.id: ",req.params.id);
@@ -65,7 +65,7 @@ module.exports = {
         }
     },
 
-    async store(req, res) {
+    async timeCreate(req, res) {
         try{
             console.log("Time.store | req.userId: ",req.userId);
 
@@ -84,7 +84,7 @@ module.exports = {
         }
     },
 
-    async update(req, res) {
+    async timeUpdate(req, res) {
         try {
             const timeUnchanged = await Time.findById(req.params.id);
 
@@ -180,7 +180,7 @@ module.exports = {
         }
     },
 
-    async destroy(req, res) {
+    async timeDelete(req, res) {
         try {
             
             const timeUnchanged = await Time.findById(req.params.id);
@@ -212,8 +212,8 @@ module.exports = {
             res.status(500).send({ message: error.message });
         }
     },
-
-    async historicMonth(req, res) {
+    
+    async timeFilterByAbiliityAndCreatedInCurrentMonth(req, res) {
         try {            
             console.log("Time.progressMonth | user: ",req.userId);
             console.log("Time.filterByAbiliity | req.params.id: ",req.params.id);

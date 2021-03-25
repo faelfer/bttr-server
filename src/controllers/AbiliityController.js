@@ -2,7 +2,7 @@ const Abiliity = require('../models/Abiliity');
 const Time = require('../models/Time');
 
 module.exports = {
-    async index(req, res) {
+    async abiliityList(req, res) {
         try {
             const abiliity = await Abiliity.find({ 
                     user: req.userId
@@ -19,7 +19,7 @@ module.exports = {
         }
     },
 
-    async show(req, res) {
+    async abiliityDetail(req, res) {
         try{
             console.log("Abiliity.show | req.userId: ",req.userId);
             console.log("Abiliity.show | req.params.id: ",req.params.id);
@@ -40,7 +40,7 @@ module.exports = {
         }
     },
 
-    async store(req, res) {
+    async abiliityCreate(req, res) {
         try{
             console.log("Abiliity.store | req.userId: ",req.userId);
 
@@ -59,7 +59,7 @@ module.exports = {
         }
     },
 
-    async update(req, res) {      
+    async abiliityUpdate(req, res) {      
         try{  
             console.log("Abiliity.update | req.userId: ",req.userId);
             console.log("Abiliity.update | req.params.id: ",req.params.id);
@@ -85,7 +85,7 @@ module.exports = {
         }
     },
 
-    async addMinutes(req, res) {
+    async abiliityAddMinutes(req, res) {
         try {
             console.log("Abiliity.addMinutes | req.userId: ",req.userId);
             console.log("Abiliity.addMinutes | req.params.id: ",req.params.id);
@@ -128,7 +128,7 @@ module.exports = {
         }
     },
 
-    async destroy(req, res) {
+    async abiliityDelete(req, res) {
         try {
             
             const abiliity = await Abiliity.findOneAndRemove({ 

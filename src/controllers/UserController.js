@@ -53,7 +53,7 @@ module.exports = {
         }
     },
 
-    async update(req, res) {
+    async userUpdate(req, res) {
         try {
             const user = await User.findByIdAndUpdate(req.userId, req.body, {   
                 new: true
@@ -66,7 +66,7 @@ module.exports = {
         }
     },
 
-    async destroy(req, res) {
+    async userDelete(req, res) {
         try {
             const user = await User.findByIdAndRemove(req.userId);
 
