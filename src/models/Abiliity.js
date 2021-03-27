@@ -1,6 +1,5 @@
 const mongoose = require('mongoose');
 const mongoosePaginate = require('mongoose-paginate');
-const dateNowBrazil = require('../utils/timeZoneBrazil');
 
 const AbiliitySchema = new mongoose.Schema({
     name: {
@@ -21,7 +20,7 @@ const AbiliitySchema = new mongoose.Schema({
     },
     createAt: {
         type: Date,
-        default: dateNowBrazil,
+        default: new Date(),
     },
 });
 
