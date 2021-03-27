@@ -234,18 +234,11 @@ module.exports = {
             const endMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
             console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | endMonthDate: ", endMonthDate)
 
-            const { page = 1 } = req.query;
-            const time = await Time.paginate({
+            const time = await Time.find({
                 createAt: { $gte: beginMonthDate, $lte: endMonthDate }, 
                 user: req.userId,
                 abiliity: req.params.id
-            }, 
-            { 
-                page, 
-                limit: 3,
-                populate: { path: 'abiliity', select: '-user' },
-                select: "-user" 
-            });
+            }).populate({ path: 'abiliity', select: '-user' }).select("-user");
 
             if(!time) {
                 return res.status(400).send({ message: "Time does not exist" });
