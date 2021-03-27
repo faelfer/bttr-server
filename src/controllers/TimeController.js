@@ -14,7 +14,8 @@ module.exports = {
                 page, 
                 limit: 5,
                 populate: { path: 'abiliity', select: '-user' },
-                select: "-user"
+                select: "-user",
+                sort: { createAt: 'desc' }
             });
 
             if(!time) {
@@ -65,7 +66,8 @@ module.exports = {
                 page, 
                 limit: 5,
                 populate: { path: 'abiliity', select: '-user' },
-                select: "-user" 
+                select: "-user",
+                sort: { createAt: 'desc' } 
             });
 
             if(!time) {
