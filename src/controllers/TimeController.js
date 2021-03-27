@@ -4,7 +4,7 @@ const Abiliity = require('../models/Abiliity')
 module.exports = {
     async timeList(req, res) {
         try {
-            console.log("Time.index | req.userId: ",req.userId);
+            console.log("timeList | req.userId: ",req.userId);
 
             const { page = 1 } = req.query;
             const time = await Time.paginate({
@@ -54,8 +54,8 @@ module.exports = {
 
     async timeFilterByAbiliity(req, res) {
         try{
-            console.log("Time.filterByAbiliity | req.userId: ",req.userId);
-            console.log("Time.filterByAbiliity | req.params.id: ",req.params.id);
+            console.log("timeFilterByAbiliity | req.userId: ",req.userId);
+            console.log("timeFilterByAbiliity | req.params.id: ",req.params.id);
 
             const { page = 1 } = req.query;
             const time = await Time.paginate({
@@ -76,7 +76,7 @@ module.exports = {
 
             return res.json(time);
         } catch (error) {
-            console.log("Time.filterByAbiliity | error: ",error);
+            console.log("timeFilterByAbiliity | error: ",error);
             res.status(500).send(error);
         }
     },
