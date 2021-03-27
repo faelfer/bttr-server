@@ -13,7 +13,8 @@ module.exports = {
                 { 
                     page, 
                     limit: 6,
-                    select: "-user" 
+                    select: "-user",
+                    sort: { timeTotal: 'desc' } 
                 });
     
                 if(!abiliity) {
