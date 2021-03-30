@@ -17,7 +17,7 @@ const TimeSchema = new mongoose.Schema({
     },
     createAt: {
         type: Date,
-        default: new Date(),
+        default: Date.now,
     },
 });
 
