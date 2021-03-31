@@ -26,7 +26,7 @@ routes.get("/time/filter_by_abiliity/:id", verifyJWT, TimeController.timeFilterB
 routes.post("/time", verifyJWT, TimeController.timeCreate);
 routes.put("/time/:id", verifyJWT, TimeController.timeUpdate);
 routes.delete("/time/:id", verifyJWT, TimeController.timeDelete);
-routes.get("/time/filter_by_abiliity_and_created_in_current_month/:id", verifyJWT, TimeController.timeFilterByAbiliityAndCreatedInCurrentMonth);
+routes.get("/time/filter_by_abiliity_and_date/:id", verifyJWT, TimeController.timeFilterByAbiliityAndDate);
 
 routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');

@@ -225,13 +225,16 @@ module.exports = {
         }
     },
     
-    async timeFilterByAbiliityAndCreatedInCurrentMonth(req, res) {
+    async timeFilterByAbiliityAndDate(req, res) {
         try {            
             console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | user: ",req.userId);
             console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | req.params.id: ",req.params.id);
+            const { date } = req.query;
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | date: ",date);
 
-            const currentDate = new Date();
-            const beginMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth()), 1 );
+            const currentDate = new Date(date);
+            console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | currentDate.getDay(): ", currentDate.getDay());
+            const beginMonthDate = new Date( currentDate.getFullYear(), currentDate.getMonth(), 1 );
             console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | beginMonthDate: ", beginMonthDate)
             const endMonthDate = new Date( currentDate.getFullYear(), (currentDate.getMonth() + 1), 0 );
             console.log("timeFilterByAbiliityAndCreatedInCurrentMonth | endMonthDate: ", endMonthDate)
@@ -243,7 +246,7 @@ module.exports = {
             }).populate({ path: 'abiliity', select: '-user' }).select("-user");
 
             if(!time) {
-                return res.status(400).send({ message: "Time does not exist" });
+                return res.status(400).send({ message: "time does not exist" });
             }
 
             return res.json(time);
