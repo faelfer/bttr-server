@@ -2,33 +2,31 @@ const express = require('express');
 const routes = express.Router();
 const verifyJWT = require("./middleware/verifyJWT");
 const UserController = require('./controllers/UserController');
-const ProgressController = require('./controllers/ProgressController');
-const ProgressHistoricController = require('./controllers/ProgressHistoricController');
+const AbiliityController = require('./controllers/AbiliityController');
+const TimeController = require('./controllers/TimeController');
 
-routes.get("/users", verifyJWT, UserController.index);
-routes.get("/users/:id", verifyJWT, UserController.show);
-routes.post("/users", UserController.store);
-routes.put("/users/:id", verifyJWT, UserController.update);
-routes.delete("/users/:id", verifyJWT, UserController.destroy);
-routes.post("/login", UserController.login);
-routes.post("/forgot_password", UserController.forgotPassword);
-routes.post("/redefine_password", verifyJWT, UserController.redefinePassword);
+routes.get("/user/profile", verifyJWT, UserController.userProfile);
+routes.post("/user/sign_up", UserController.userSignUp);
+routes.put("/user/profile", verifyJWT, UserController.userUpdate);
+routes.delete("/user/profile", verifyJWT, UserController.userDelete);
+routes.post("/user/sign_in", UserController.userSignIn);
+routes.post("/user/forgot_password", UserController.userForgotPassword);
+routes.post("/user/redefine_password", verifyJWT, UserController.userRedefinePassword);
 
-routes.get("/progress", verifyJWT, ProgressController.index);
-routes.get("/progress/:id", verifyJWT, ProgressController.show);
-routes.post("/progress", verifyJWT, ProgressController.store);
-routes.put("/progress/:id", verifyJWT, ProgressController.update);
-routes.put("/progress_sum/:id", verifyJWT, ProgressController.progressSum);
-routes.delete("/progress/:id", verifyJWT, ProgressController.destroy);
-routes.get("/progress_month/:date", verifyJWT, ProgressController.progressMonth);
-routes.get("/progress_overview_month", verifyJWT, ProgressController.progressOverviewMonth);
+routes.get("/abiliity", verifyJWT, AbiliityController.abiliityList);
+routes.get("/abiliity/:id", verifyJWT, AbiliityController.abiliityDetail);
+routes.post("/abiliity", verifyJWT, AbiliityController.abiliityCreate);
+routes.put("/abiliity/:id", verifyJWT, AbiliityController.abiliityUpdate);
+routes.put("/abiliity/:id/add_minutes", verifyJWT, AbiliityController.abiliityAddMinutes);
+routes.delete("/abiliity/:id", verifyJWT, AbiliityController.abiliityDelete);
 
-routes.get("/progress_historic", verifyJWT, ProgressHistoricController.index);
-routes.get("/progress_historic/:id", ProgressHistoricController.show);
-routes.post("/progress_historic", ProgressHistoricController.store);
-routes.put("/progress_historic/:id", verifyJWT, ProgressHistoricController.update);
-routes.delete("/progress_historic/:id", verifyJWT, ProgressHistoricController.destroy);
-routes.get("/progress_historic/extract/:id", verifyJWT, ProgressHistoricController.historicMonth);
+routes.get("/time", verifyJWT, TimeController.timeList);
+routes.get("/time/:id", verifyJWT, TimeController.timeDetail);
+routes.get("/time/filter_by_abiliity/:id", verifyJWT, TimeController.timeFilterByAbiliity);
+routes.post("/time", verifyJWT, TimeController.timeCreate);
+routes.put("/time/:id", verifyJWT, TimeController.timeUpdate);
+routes.delete("/time/:id", verifyJWT, TimeController.timeDelete);
+routes.get("/time/filter_by_abiliity_and_date/:id", verifyJWT, TimeController.timeFilterByAbiliityAndDate);
 
 routes.get("/debug-sentry", function mainHandler(req, res) {
     throw new Error('Checking Sentry Integration!');

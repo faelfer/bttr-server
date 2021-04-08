@@ -3,95 +3,80 @@ const jwt = require('jsonwebtoken');
 
 const User = require('../models/User');
 
+const sendUser = require('../utils/sendEmail');
+
 module.exports = {
-    async index(req, res) {
-        const users = await User.find();
 
-        const userWithoutPassword = users.map(user => {
-            // console.log("User.index | user: ",user);
-            let objectUser = user.toObject();
-            delete objectUser.password;
-            return objectUser;
-        });
-
-        // console.log("User.index | user: ",userWithoutPassword);
-        return res.json(userWithoutPassword);
-    },
-
-    async show(req, res) {
+    async userProfile(req, res) {
         try {
-
-            const user = await User.findById(req.params.id);
-            console.log("User.show | user: ",user);
-
-            if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
-            }
-            console.log("User.show | req.userId: ",req.userId);
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
-
-            var userWithoutPassword = user.toObject();
-            delete userWithoutPassword.password;
-
-            return res.json(userWithoutPassword);
-        } catch (error) {
-            console.log("User.show | error: ",error);
-            res.status(500).send(error);
-        }
-    },
-
-    async store(req, res) {
-        req.body.password = Bcrypt.hashSync(req.body.password, 10);
-        const user = await User.create(req.body);
-
-        return res.json(user);
-    },
-
-    async update(req, res) {
-        try {
-            const user = await User.findByIdAndUpdate(req.params.id, req.body, {
-                new: true
-            });
-
-            if(!user) {
-                return res.status(400).send({ message: "The user does not exist" });
-            }
-
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
+            console.log("userProfile | req.userId: ",req.userId);
+            const user = await User.findById(req.userId).select("-_id -password")
+            console.log("userProfile | user: ",user);
 
             return res.json(user);
         } catch (error) {
-            console.log("User.update | error: ",error);
+            console.log("userProfile | error: ",error);
             res.status(500).send(error);
         }
     },
 
-    async destroy(req, res) {
+    async userSignUp(req, res) {
         try {
-            const user = await User.findByIdAndRemove(req.params.id);
+            req.body.password = Bcrypt.hashSync(req.body.password, 10);
+            const user = await User.create(req.body);
+
+            let message = {
+                from: `${process.env.ACCOUNT_NAME} <${process.env.ACCOUNT_EMAIL}>`,
+                to: req.body.email,
+                subject: 'Welcome',
+                text: 'Successful registration!',
+                html: '<p>Successful registration!</p>'
+            };
+            
+            console.log("userSignUp | message: ",message);
+
+            const responseEmail = sendUser(message);
+
+            console.log("userSignUp | responseEmail: ",responseEmail);
+    
+            return res.json({ message: "user successfully created" });
+        } catch (error) {
+            console.log("userSignUp | error: ",error);
+            res.status(500).send(error);
+        }
+    },
+
+    async userUpdate(req, res) {
+        try {
+            const user = await User.findByIdAndUpdate(req.userId, req.body, {   
+                new: true
+            });
+
+            return res.json({ message: "user has been successfully edited" });
+        } catch (error) {
+            console.log("userUpdate | error: ",error);
+            res.status(500).send(error);
+        }
+    },
+
+    async userDelete(req, res) {
+        try {
+            const user = await User.findByIdAndRemove(req.userId);
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
-
-            res.send({ message: "successfully deleted" });
+            res.send({ message: "user successfully deleted" });
         } catch (error) {
-            console.log("User.destroy | error: ",error);
+            console.log("userDelete | error: ",error);
             res.status(500).send({ message: error.message });
         }
     },
 
-    async login(req, res) {
+    async userSignIn(req, res) {
         try {
-            var user = await User.findOne({ email: req.body.email });
+            const user = await User.findOne({ email: req.body.email });
             if(!user) {
                 return res.status(400).send({ message: "The email does not exist" });
             }
@@ -99,14 +84,12 @@ module.exports = {
                 return res.status(403).send({ message: "The password is invalid" });
             }
 
-            const token = jwt.sign({ id: user["_id"] }, 'bttr-server', { expiresIn: "14 days" });
-
-            await User.findByIdAndUpdate(user["_id"], {token});
+            const token = jwt.sign({ id: user["_id"] }, process.env.JWT_SECRET, { expiresIn: "14 days" });
 
             res.send({ 
                 auth: true,
                 token, 
-                message: "E-mail and password are correct!" 
+                message: "e-mail and password are correct!" 
             });
             
         } catch (error) {
@@ -115,61 +98,86 @@ module.exports = {
         }
     },
 
-    async forgotPassword(req, res) {
+    async userForgotPassword(req, res) {
         try {
-            var user = await User.findOne({ email: req.body.email });
+            const user = await User.findOne({ email: req.body.email });
             if(!user) {
-                return res.status(400).send({ message: "The email does not exist" });
+                return res.status(400).send({ message: "email does not exist" });
             }
 
             const randomText = Math.random().toString(36).slice(2); 
-            console.log("User.forgotPassword | new password: ",randomText);
+            console.log("userForgotPassword | new password: ",randomText);
 
-            password = Bcrypt.hashSync(randomText, 10);
+            let encryptedPassword = Bcrypt.hashSync(randomText, 10);
 
             await User.findByIdAndUpdate(
                 user["_id"], 
-                { password }
+                { password: encryptedPassword }
             );
 
-            res.send({ message: "The email is correct!" });
+            let message = {
+                from: `${process.env.ACCOUNT_NAME} <${process.env.ACCOUNT_EMAIL}>`,
+                to: user.email,
+                subject: 'New password generated by the "I forgot my password" feature',
+                text: `Your New Password: ${randomText}`,
+                html: `<p><strong>Your New Password:</strong> ${randomText}</p>`
+            };
+            
+            console.log("userForgotPassword| message: ",message);
+
+            const responseEmail = sendUser(message);
+
+            console.log("userForgotPassword| responseEmail: ",responseEmail);
+
+            res.send({ message: "your new password was successfully generated and sent to the email registered in the profile." });
         } catch (error) {
-            console.log("User.forgotPassword | error: ",error);
+            console.log("userForgotPassword | error: ",error);
             res.status(500).send(error);
         }
     },
 
-    async redefinePassword(req, res) {
+    async userRedefinePassword(req, res) {
         try {
-            console.log("redefinePassword | req.userId: ",req.userId);
+            console.log("userRedefinePassword | req.userId: ",req.userId);
+            
+            if(req.body.newPassword !== req.body.confirmNewPassword) {
+                return res.status(400).send({ message: "Password and confirm password fields are different" });
+            }
+            
             const user = await User.findById(req.userId);
 
             if(!user) {
                 return res.status(400).send({ message: "The user does not exist" });
             }
 
-            if(req.userId != user._id) {
-                return res.status(403).send({ message: "Access was not authorized" });
-            }
-
             if(!Bcrypt.compareSync(req.body.currentPassword, user.password)) {
                 return res.status(400).send({ message: "The password is invalid" });
             }
 
-            if(req.body.password !== req.body.confirmPassword) {
-                return res.status(400).send({ message: "Password and confirm password fields are different" });
-            }
-
-            password = Bcrypt.hashSync(req.body.password, 10);
+            let encryptedPassword = Bcrypt.hashSync(req.body.newPassword, 10);
 
             await User.findByIdAndUpdate(
                 user["_id"],
-                { password }
+                { password: encryptedPassword }
             );
 
-            res.send({ message: "Password successfully reset!" });
+            let message = {
+                from: `${process.env.ACCOUNT_NAME} <${process.env.ACCOUNT_EMAIL}>`,
+                to: user.email,
+                subject: 'Your password has been reset',
+                text: 'If you have not changed your password, contact us immediately.',
+                html: '<p>If you have not changed your password, contact us immediately.</p>'
+            };
+            
+            console.log("userRedefinePassword | message: ",message);
+
+            const responseEmail = sendUser(message);
+
+            console.log("userRedefinePassword | responseEmail: ",responseEmail);
+
+            res.send({ message: "password successfully reset!" });
         } catch (error) {
-            console.log("User.redefinePassword | error: ",error);
+            console.log("User.userRedefinePassword | error: ",error);
             res.status(500).send(error);
         }
 
