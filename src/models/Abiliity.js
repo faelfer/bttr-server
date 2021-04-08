@@ -1,21 +1,17 @@
 const mongoose = require('mongoose');
-const dateNowBrazil = require('../utils/timeZoneBrazil');
+const mongoosePaginate = require('mongoose-paginate');
 
-const ProgressSchema = new mongoose.Schema({
+const AbiliitySchema = new mongoose.Schema({
     name: {
         type: String,
         required: true,
     },
-    goalPerDay: {
+    timeDaily: {
         type: Number,
         required: true,
     },
-    goalDone: {
+    timeTotal: {
         type: Number,
-        required: true,
-    },
-    icon: {
-        type: String,
         required: true,
     },
     user: {
@@ -24,8 +20,10 @@ const ProgressSchema = new mongoose.Schema({
     },
     createAt: {
         type: Date,
-        default: dateNowBrazil,
+        default: Date.now,
     },
 });
 
-module.exports = mongoose.model('Progress', ProgressSchema);
+AbiliitySchema.plugin(mongoosePaginate);
+
+module.exports = mongoose.model('Abiliity', AbiliitySchema);
