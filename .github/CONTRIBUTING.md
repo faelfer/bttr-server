@@ -14,8 +14,8 @@ A lot of our code comes from pull requests sent by the developer community. Here
 
 - [x] Open the [Bttr Server GitHub page](https://github.com/NYDino/bttr-server) and click the ★ Star and then ⑂ Fork buttons.
 - [x] Clone a copy to your local machine with `$ git clone git@github.com:YOUR-GITHUB-USER-NAME/bttr-server`.
-- [x] Use the `docker pull mongo` to install and `docker run --name bttrdb -p 27017:27017 -d mongo` to run MongoDB
-- [x] Run `yarn install` to install all dependencies and `yarn dev` to run project.
+- [x] Install JDK 21 and Docker Compose. Run `docker compose up -d --wait` to start PostgreSQL, Keycloak and Mailpit.
+- [x] Copy `.env.example` to `.env`, then run `./gradlew quarkusDev`. Run `./gradlew build` to compile and test before submitting changes. See [README](../README.md) for the API contract and configuration.
 - [x] Now, code, code, code.
 - [x] Commit your local changes by using `$ git commit -m "nice detailed message here..."`
 - [x] Once you've made sure all your changes work correctly and have been committed, push your local changes back to github with `$ git push -u origin master`

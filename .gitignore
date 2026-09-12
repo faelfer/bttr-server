@@ -109,3 +109,12 @@ tmp/
 temp/
 
 # End of https://www.gitignore.io/api/node
+# Quarkus / Gradle
+.gradle/
+build/
+.quarkus/
+*.class
+.idea/
+*.iml
+__pycache__/
+*.pyc
