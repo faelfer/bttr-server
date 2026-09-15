@@ -123,6 +123,14 @@ python3 scripts/smoke.py
 
 O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MAILPIT_API` permitem alterar os endereços de teste.
 
+### Pipeline Jenkins
+
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório, executa `./gradlew build --no-daemon`, publica os resultados JUnit de `build/test-results/test` e arquiva o relatório HTML de `build/reports/tests/test`.
+
+Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix, ter JDK 21 e Docker acessível pelo usuário do agente, pois os testes iniciam um PostgreSQL isolado por meio do Quarkus Dev Services. Também são necessários os plugins Pipeline, JUnit e GitLab.
+
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. O bloco `gitlabCommitStatus` publica no commit o estado da etapa `build`.
+
 ## Empacotar e configurar
 
 ```bash
