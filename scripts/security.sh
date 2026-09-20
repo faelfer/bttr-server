@@ -5,7 +5,8 @@ set -eu
 : "${CI_GID:=$(id -g)}"
 : "${COMPOSE_PROJECT_NAME:=bttr-security}"
 : "${BTTR_API_IMAGE:=bttr-server-security:local}"
-export CI_UID CI_GID COMPOSE_PROJECT_NAME BTTR_API_IMAGE
+: "${TRIVY_CACHE_VOLUME:=bttr-trivy-cache}"
+export CI_UID CI_GID COMPOSE_PROJECT_NAME BTTR_API_IMAGE TRIVY_CACHE_VOLUME
 
 ZAP_AUTH_TOKEN=""
 export ZAP_AUTH_TOKEN
@@ -29,6 +30,8 @@ trap cleanup EXIT INT TERM
 
 mkdir -p build/reports/security
 rm -rf build/reports/security/*
+docker volume inspect "$TRIVY_CACHE_VOLUME" >/dev/null 2>&1 ||
+  docker volume create "$TRIVY_CACHE_VOLUME" >/dev/null
 compose up -d --build --wait api
 compose run --rm -T --no-deps trivy
 

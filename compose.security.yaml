@@ -42,4 +42,5 @@ services:
 
 volumes:
   trivy-cache:
-    name: bttr-trivy-cache
+    external: true
+    name: "${TRIVY_CACHE_VOLUME:-bttr-trivy-cache}"
