@@ -1,0 +1,79 @@
+env:
+  contexts:
+    - name: bttr-api
+      urls:
+        - http://api:8000
+      includePaths:
+        - 'http://api:8000/.*'
+      excludePaths:
+        - 'http://api:8000/users/(sign_up|sign_in|forgot_password|redefine_password).*'
+        - 'http://api:8000/users/profile.*'
+  parameters:
+    failOnError: true
+    failOnWarning: true
+    continueOnFailure: false
+    progressToStdout: true
+
+jobs:
+  - type: requestor
+    requests:
+      - name: confirmar autenticação
+        url: http://api:8000/users/profile
+        method: GET
+        responseCode: 200
+
+  - type: openapi
+    parameters:
+      apiUrl: http://api:8000/q/openapi
+      context: bttr-api
+      targetUrl: http://api:8000
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 2
+
+  - type: activeScan
+    parameters:
+      context: bttr-api
+      policy: Dev CICD
+      maxRuleDurationInMins: 1
+      maxScanDurationInMins: 5
+      threadPerHost: 4
+      maxAlertsPerRule: 20
+
+  - type: passiveScan-wait
+    parameters:
+      maxDuration: 2
+
+  - type: report
+    parameters:
+      template: traditional-html
+      reportDir: /zap/wrk
+      reportFile: zap-report
+      reportTitle: Bttr Server - OWASP ZAP
+      reportDescription: Scan autenticado da API importada por OpenAPI
+      displayReport: false
+
+  - type: report
+    parameters:
+      template: traditional-json
+      reportDir: /zap/wrk
+      reportFile: zap-report-traditional
+      reportTitle: Bttr Server - OWASP ZAP
+      displayReport: false
+
+  - type: report
+    parameters:
+      template: sarif-json
+      reportDir: /zap/wrk
+      reportFile: zap-report-sarif
+      reportTitle: Bttr Server - OWASP ZAP
+      displayReport: false
+
+  - type: exitStatus
+    parameters:
+      errorLevel: High
+      warnLevel: Medium
+      okExitValue: 0
+      errorExitValue: 1
+      warnExitValue: 0

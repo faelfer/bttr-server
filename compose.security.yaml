@@ -1,0 +1,45 @@
+services:
+  api:
+    image: "${BTTR_API_IMAGE:-bttr-server-security:local}"
+
+  trivy:
+    image: aquasec/trivy:0.74.0
+    working_dir: /workspace
+    environment:
+      TARGET_IMAGE: "${BTTR_API_IMAGE:-bttr-server-security:local}"
+    volumes:
+      - ${CI_WORKSPACE:-.}:/workspace:ro,z
+      - ${CI_WORKSPACE:-.}/build/reports/security:/reports:z
+      - /var/run/docker.sock:/var/run/docker.sock
+      - trivy-cache:/root/.cache/trivy
+    entrypoint: ["/bin/sh", "/workspace/security/trivy.sh"]
+
+  zap-auth:
+    image: python:3.13-alpine
+    environment:
+      BTTR_API: http://api:8000
+      ZAP_AUTH_TOKEN: "${ZAP_AUTH_TOKEN:-}"
+    volumes:
+      - ${CI_WORKSPACE:-.}/security:/security:ro,z
+    entrypoint: ["python3", "/security/zap_auth.py"]
+    depends_on:
+      api:
+        condition: service_healthy
+
+  zap:
+    image: zaproxy/zap-stable:2.17.0
+    environment:
+      ZAP_AUTH_HEADER: Authorization
+      ZAP_AUTH_HEADER_SITE: api
+      ZAP_AUTH_HEADER_VALUE: "Token ${ZAP_AUTH_TOKEN:-}"
+    volumes:
+      - ${CI_WORKSPACE:-.}/security/zap.yaml:/zap/config/zap.yaml:ro,z
+      - ${CI_WORKSPACE:-.}/build/reports/security:/zap/wrk:z
+    depends_on:
+      api:
+        condition: service_healthy
+    command: ["zap.sh", "-cmd", "-autorun", "/zap/config/zap.yaml"]
+
+volumes:
+  trivy-cache:
+    name: bttr-trivy-cache

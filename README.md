@@ -1,6 +1,6 @@
 # Bttr Server
 
-Backend Java 21 / Quarkus 3.27.5.2, com Gradle Wrapper 8.14.3, Hibernate ORM with Panache, PostgreSQL, Flyway, Jakarta Bean Validation, SmallRye OpenAPI/Swagger UI, Keycloak e métricas Micrometer no formato Prometheus. E-mails do Keycloak são capturados pelo Mailpit no ambiente local. Os testes usam JUnit 5, RestAssured, Mockito e k6.
+Backend Java 21 / Quarkus 3.33.3.2 LTS, com Gradle Wrapper 8.14.3, Hibernate ORM with Panache, PostgreSQL, Flyway, Jakarta Bean Validation, SmallRye OpenAPI/Swagger UI, Keycloak e métricas Micrometer no formato Prometheus. E-mails do Keycloak são capturados pelo Mailpit no ambiente local. Os testes usam JUnit 5, RestAssured, Mockito e k6.
 
 Implementado a partir de `bttr-client-react/src/services/{user,skill,time}/api.*`, dos formulários e dos mocks E2E do cliente.
 
@@ -181,9 +181,36 @@ ou se o p95 de perfil alcançar 750 ms. Ajuste localmente com `PERFORMANCE_VUS` 
 Os artefatos ficam em `build/reports/k6`: dashboard HTML, resumo JSON e thresholds em
 JUnit XML.
 
+### Testes de segurança
+
+O pipeline usa Trivy 0.74.0 para examinar vulnerabilidades, segredos e configurações no
+repositório e na imagem final. Vulnerabilidades `HIGH` ou `CRITICAL` fazem a etapa falhar;
+na imagem, achados sem correção disponível são mantidos no relatório, mas não bloqueiam
+o build. O OWASP ZAP 2.17.0 importa o contrato OpenAPI e executa passive e active scan
+com a política `Dev CICD`.
+
+O scan ZAP cria uma conta temporária no Keycloak, verifica o token no endpoint de perfil
+e adiciona `Authorization: Token <token>` às requisições. Operações de identidade e a
+exclusão do perfil ficam fora do active scan para preservar a sessão. A conta, as
+habilidades e os tempos criados durante o teste são removidos ao terminar.
+
+Para executar os dois scanners no ambiente isolado:
+
+```bash
+export CI_UID="$(id -u)" CI_GID="$(id -g)"
+export COMPOSE_PROJECT_NAME=bttr-security-local
+export BTTR_API_IMAGE=bttr-server-security:local
+./scripts/security.sh
+```
+
+Os relatórios HTML, JSON e SARIF ficam em `build/reports/security`. O Trivy bloqueia
+achados altos ou críticos no repositório e vulnerabilidades altas ou críticas com
+correção disponível na imagem; o ZAP bloqueia alertas de risco alto. Alertas médios e
+baixos permanecem visíveis para triagem.
+
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle e k6, inclusive os disponíveis após uma falha.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle, k6, Trivy e ZAP.
 
 Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
 
@@ -196,7 +223,7 @@ A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pi
 
 Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
-Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build` e `performance`.
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `performance` e `security`.
 
 ## Empacotar e configurar
 
