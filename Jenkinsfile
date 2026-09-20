@@ -152,25 +152,27 @@ pipeline {
 
         stage('Security scans') {
             steps {
-                gitlabCommitStatus(name: 'security') {
-                    sh '''
-                        if [ -n "${CI_HOST_JENKINS_HOME:-}" ]; then
-                            case "$WORKSPACE" in
-                                "$JENKINS_HOME"/*)
-                                    export CI_WORKSPACE="$CI_HOST_JENKINS_HOME/${WORKSPACE#"$JENKINS_HOME"/}"
-                                    ;;
-                                *)
-                                    echo 'WORKSPACE deve estar dentro de JENKINS_HOME para mapear o caminho no host.' >&2
-                                    exit 1
-                                    ;;
-                            esac
-                        fi
+                timeout(time: 90, unit: 'MINUTES') {
+                    gitlabCommitStatus(name: 'security') {
+                        sh '''
+                            if [ -n "${CI_HOST_JENKINS_HOME:-}" ]; then
+                                case "$WORKSPACE" in
+                                    "$JENKINS_HOME"/*)
+                                        export CI_WORKSPACE="$CI_HOST_JENKINS_HOME/${WORKSPACE#"$JENKINS_HOME"/}"
+                                        ;;
+                                    *)
+                                        echo 'WORKSPACE deve estar dentro de JENKINS_HOME para mapear o caminho no host.' >&2
+                                        exit 1
+                                        ;;
+                                esac
+                            fi
 
-                        export CI_UID="$(id -u)" CI_GID="$(id -g)"
-                        export COMPOSE_PROJECT_NAME="bttr-security-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
-                        export BTTR_API_IMAGE="bttr-server-security:$BUILD_NUMBER"
-                        ./scripts/security.sh
-                    '''
+                            export CI_UID="$(id -u)" CI_GID="$(id -g)"
+                            export COMPOSE_PROJECT_NAME="bttr-security-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
+                            export BTTR_API_IMAGE="bttr-server-security:$BUILD_NUMBER"
+                            ./scripts/security.sh
+                        '''
+                    }
                 }
             }
         }

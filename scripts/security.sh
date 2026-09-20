@@ -6,7 +6,12 @@ set -eu
 : "${COMPOSE_PROJECT_NAME:=bttr-security}"
 : "${BTTR_API_IMAGE:=bttr-server-security:local}"
 : "${TRIVY_CACHE_VOLUME:=bttr-trivy-cache}"
+: "${TRIVY_TIMEOUT:=60m}"
+: "${TRIVY_DOWNLOAD_RETRIES:=2}"
+: "${TRIVY_DB_REPOSITORY:=ghcr.io/aquasecurity/trivy-db:2}"
+: "${TRIVY_JAVA_DB_REPOSITORY:=ghcr.io/aquasecurity/trivy-java-db:1}"
 export CI_UID CI_GID COMPOSE_PROJECT_NAME BTTR_API_IMAGE TRIVY_CACHE_VOLUME
+export TRIVY_TIMEOUT TRIVY_DOWNLOAD_RETRIES TRIVY_DB_REPOSITORY TRIVY_JAVA_DB_REPOSITORY
 
 ZAP_AUTH_TOKEN=""
 export ZAP_AUTH_TOKEN

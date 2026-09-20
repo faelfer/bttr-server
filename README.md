@@ -281,6 +281,15 @@ achados altos ou críticos no repositório e vulnerabilidades altas ou críticas
 correção disponível na imagem; o ZAP bloqueia alertas de risco alto. Alertas médios e
 baixos permanecem visíveis para triagem.
 
+Antes dos scans, o Trivy atualiza separadamente as bases de vulnerabilidades e Java no
+volume persistente `bttr-trivy-cache`, usando os repositórios oficiais GHCR. O download
+tem timeout padrão de 60 minutos, duas tentativas e não exibe a barra de progresso no
+log do Jenkins. Os scans reutilizam a mesma base sem tentar baixá-la novamente. Em redes
+com proxy ou registry interno, ajuste `TRIVY_DB_REPOSITORY` e
+`TRIVY_JAVA_DB_REPOSITORY`; `TRIVY_TIMEOUT`, `TRIVY_DOWNLOAD_RETRIES` e
+`TRIVY_CACHE_VOLUME` também podem ser sobrescritos no agente. A etapa inteira possui
+limite de 90 minutos no Jenkins.
+
 ### Pipeline Jenkins
 
 O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. A etapa **Mock API** constrói uma tag `bttr-server-mock` exclusiva do job/build, aguarda o WireMock ficar saudável e valida CORS, autenticação, erros e os ciclos stateful de habilidades e tempos. Em seguida, **SonarQube Analysis** envia código, bytecode, resultados de testes e cobertura JaCoCo ao SonarQube; **Quality Gate** aguarda o processamento e interrompe o pipeline se o gate reprovar. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar o contrato OpenAPI e os relatórios de testes, Checkstyle, JaCoCo, k6, Trivy e ZAP.

@@ -7,6 +7,10 @@ services:
     working_dir: /workspace
     environment:
       TARGET_IMAGE: "${BTTR_API_IMAGE:-bttr-server-security:local}"
+      TRIVY_TIMEOUT: "${TRIVY_TIMEOUT:-60m}"
+      TRIVY_DOWNLOAD_RETRIES: "${TRIVY_DOWNLOAD_RETRIES:-2}"
+      TRIVY_DB_REPOSITORY: "${TRIVY_DB_REPOSITORY:-ghcr.io/aquasecurity/trivy-db:2}"
+      TRIVY_JAVA_DB_REPOSITORY: "${TRIVY_JAVA_DB_REPOSITORY:-ghcr.io/aquasecurity/trivy-java-db:1}"
     volumes:
       - ${CI_WORKSPACE:-.}:/workspace:ro,z
       - ${CI_WORKSPACE:-.}/build/reports/security:/reports:z
