@@ -109,7 +109,8 @@ O backend aceita senhas de 4 a 128 caracteres com maiúscula, minúscula, númer
 
 ## Testes e build
 
-O Gradle gerencia Spotless 8.10.2, google-java-format 1.36.1 e Checkstyle 14.1.0.
+O Gradle gerencia Spotless 8.10.2, google-java-format 1.36.1, Checkstyle 14.1.0,
+JaCoCo e o SonarScanner for Gradle 7.5.0.8588.
 O código Java de produção e testes segue Google Java Style, com dois espaços.
 O Checkstyle verifica imports explícitos, redundantes ou não utilizados e convenções
 de nomenclatura. Código gerado fica fora dessas verificações.
@@ -123,6 +124,7 @@ de nomenclatura. Código gerado fica fora dessas verificações.
 As verificações também fazem parte de `build` e falham ao encontrar violações.
 O CI somente verifica o código; execute `spotlessApply` antes de fazer commit.
 Relatórios Checkstyle: `build/reports/checkstyle/{main,test}.{html,xml}`.
+O JaCoCo gera os relatórios de cobertura em `build/reports/jacoco/test`.
 As ferramentas são baixadas pelo Gradle e não exigem instalação manual no Jenkins.
 
 ```bash
@@ -130,6 +132,18 @@ As ferramentas são baixadas pelo Gradle e não exigem instalação manual no Je
 ./gradlew build
 ./gradlew quarkusIntTest
 ```
+
+Para enviar uma análise manual ao SonarQube, gere um token com permissão **Execute
+Analysis** e execute:
+
+```bash
+export SONAR_HOST_URL=http://localhost:9000
+export SONAR_TOKEN='<token>'
+./gradlew clean test jacocoTestReport sonar
+```
+
+O projeto é publicado com a chave `bttr-server` e o nome `BTTR Server`. O token é um
+segredo e não deve ser adicionado ao `.env`, ao `gradle.properties` nem ao repositório.
 
 Docker deve estar disponível. Os testes criam um **PostgreSQL isolado via Dev Services**, aplicam as migrações reais e simulam o provedor de identidade com Mockito. Não usam o banco de desenvolvimento. Cobrem contratos HTTP, validação, paginação, datas, isolamento entre usuários, cascatas e falhas de autenticação. Relatório: `build/reports/tests/test/index.html`.
 
@@ -210,9 +224,24 @@ baixos permanecem visíveis para triagem.
 
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle, k6, Trivy e ZAP.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Em seguida, **SonarQube Analysis** envia código, bytecode, resultados de testes e cobertura JaCoCo ao SonarQube; **Quality Gate** aguarda o processamento e interrompe o pipeline se o gate reprovar. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle, JaCoCo, k6, Trivy e ZAP.
 
-Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
+Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit, GitLab e **SonarQube Scanner for Jenkins**.
+
+No Jenkins, acesse **Manage Jenkins > System > SonarQube installations**, cadastre o
+servidor com o nome exato `SonarQube Local` e selecione uma credencial **Secret text**
+que contenha um token de análise. A URL configurada precisa ser acessível tanto pelo
+Jenkins quanto pelo contêiner `tests`. Durante a análise, `compose.jenkins.yaml` conecta
+esse contêiner à rede externa `infraestrutura-network`, usada pelo Jenkins e pelo
+SonarQube locais. Caso a infraestrutura use outro nome de rede, defina
+`CI_INFRASTRUCTURE_NETWORK` no agente Jenkins. Não use `localhost` se o Jenkins ou o
+SonarQube estiverem em contêineres distintos. Não é necessário configurar uma instalação
+global do SonarScanner, pois o scanner vem do plugin Gradle.
+
+Para o estágio **Quality Gate**, crie no SonarQube um webhook para
+`<URL_DO_JENKINS>/sonarqube-webhook/` (a barra final é obrigatória). O pipeline usa
+`withSonarQubeEnv('SonarQube Local')`, aguarda o retorno por até 10 minutos e falha
+automaticamente quando o status não é aprovado.
 
 A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pipeline no Jenkins em contêiner, a infraestrutura deve fornecer:
 
@@ -223,7 +252,7 @@ A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pi
 
 Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
-Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `performance` e `security`.
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `sonarqube`, `performance` e `security`.
 
 ## Empacotar e configurar
 

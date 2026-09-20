@@ -19,6 +19,8 @@ services:
       QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
       QUARKUS_OIDC_JWKS_PATH: /certs
       QUARKUS_OIDC_JWKS_RESOLVE_EARLY: "false"
+      SONAR_HOST_URL: "${SONAR_HOST_URL:-}"
+      SONAR_TOKEN: "${SONAR_AUTH_TOKEN:-}"
     volumes:
       - ${CI_WORKSPACE:-.}:/workspace:z
     command: ["./gradlew", "clean", "build", "quarkusIntTest", "--no-daemon", "--console=plain"]

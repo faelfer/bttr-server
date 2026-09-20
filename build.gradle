@@ -1,8 +1,10 @@
 plugins {
     id 'java'
+    id 'jacoco'
     id 'io.quarkus'
     id 'com.diffplug.spotless' version '8.10.2'
     id 'checkstyle'
+    id 'org.sonarqube' version '7.5.0.8588'
 }
 
 group = 'br.com.bttr'
@@ -92,4 +94,28 @@ test {
     environment.remove('DATABASE_USERNAME')
     environment.remove('DATABASE_PASSWORD')
     maxHeapSize = '1g'
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true
+        html.required = true
+        csv.required = false
+    }
+}
+
+sonar {
+    properties {
+        property 'sonar.projectKey', 'bttr-server'
+        property 'sonar.projectName', 'BTTR Server'
+        property 'sonar.sourceEncoding', 'UTF-8'
+        property 'sonar.coverage.jacoco.xmlReportPaths',
+                layout.buildDirectory.file('reports/jacoco/test/jacocoTestReport.xml').get().asFile
+    }
+}
+
+tasks.named('sonar') {
+    dependsOn jacocoTestReport
 }
