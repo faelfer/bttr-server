@@ -137,7 +137,16 @@ O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MA
 
 O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build --no-daemon --console=plain`, incluindo a suíte de testes. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e arquiva o relatório HTML de `build/reports/tests/test`.
 
-Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, o workspace precisa estar disponível no mesmo caminho absoluto no host para o bind mount funcionar. Também são necessários os plugins Pipeline, JUnit e GitLab.
+Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
+
+A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pipeline no Jenkins em contêiner, a infraestrutura deve fornecer:
+
+- Uma imagem Jenkins com Docker CLI e o plugin Compose v2 instalados.
+- A montagem de `/var/run/docker.sock` e o grupo suplementar correspondente ao GID desse socket para o usuário `jenkins`.
+- A variável `CI_HOST_JENKINS_HOME` com o caminho absoluto no host que está montado como `JENKINS_HOME`. O pipeline usa esse caminho para definir `CI_WORKSPACE`, origem do bind mount em `compose.ci.yaml`. Em agentes instalados diretamente no host, essas variáveis podem ser omitidas.
+- A opção SELinux `:z` nas montagens de dados compartilhados entre Jenkins e o contêiner de testes.
+
+Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
 Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. O bloco `gitlabCommitStatus` publica no commit o estado da etapa `build`.
 

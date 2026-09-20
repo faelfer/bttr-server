@@ -12,7 +12,7 @@ services:
       _TEST_QUARKUS_DATASOURCE_USERNAME: bttr_test
       _TEST_QUARKUS_DATASOURCE_PASSWORD: bttr_test
     volumes:
-      - .:/workspace:Z
+      - ${CI_WORKSPACE:-.}:/workspace:z
     command: ["./gradlew", "clean", "test", "--no-daemon", "--console=plain"]
     depends_on:
       postgres-test:
