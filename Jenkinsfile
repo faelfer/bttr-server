@@ -22,7 +22,7 @@ pipeline {
             }
         }
 
-        stage('Build and test') {
+        stage('Build, lint and test') {
             steps {
                 gitlabCommitStatus(name: 'build') {
                     sh '''
@@ -61,7 +61,7 @@ pipeline {
             junit allowEmptyResults: true,
                 testResults: 'build/test-results/test/*.xml'
             archiveArtifacts allowEmptyArchive: true,
-                artifacts: 'build/reports/tests/test/**'
+                artifacts: 'build/reports/tests/test/**,build/reports/checkstyle/**'
         }
     }
 }

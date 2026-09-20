@@ -1,6 +1,8 @@
 plugins {
     id 'java'
     id 'io.quarkus'
+    id 'com.diffplug.spotless' version '8.10.2'
+    id 'checkstyle'
 }
 
 group = 'br.com.bttr'
@@ -29,6 +31,39 @@ dependencies {
 
 java {
     toolchain { languageVersion = JavaLanguageVersion.of(21) }
+}
+
+spotless {
+    java {
+        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        googleJavaFormat('1.36.1')
+        removeUnusedImports()
+        trimTrailingWhitespace()
+        endWithNewline()
+    }
+}
+
+checkstyle {
+    toolVersion = '14.1.0'
+    sourceSets = [project.sourceSets.main, project.sourceSets.test]
+    configFile = file('config/checkstyle/checkstyle.xml')
+    maxWarnings = 0
+    ignoreFailures = false
+}
+
+tasks.named('checkstyleMain') {
+    source = fileTree('src/main/java') { include '**/*.java' }
+}
+
+tasks.named('checkstyleTest') {
+    source = fileTree('src/test/java') { include '**/*.java' }
+}
+
+tasks.withType(Checkstyle).configureEach {
+    reports {
+        xml.required = true
+        html.required = true
+    }
 }
 
 tasks.withType(JavaCompile).configureEach {

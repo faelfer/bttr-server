@@ -19,9 +19,10 @@ Há várias formas de contribuir com o projeto: enviar código, relatar bugs e p
    docker compose up -d --wait
    ```
 
-5. Implemente a alteração e execute os testes antes de enviá-la:
+5. Implemente a alteração, aplique a formatação e valide o build antes de enviá-la:
 
    ```bash
+   ./gradlew spotlessApply
    ./gradlew build
    ```
 
@@ -37,7 +38,8 @@ Consulte o [README](README.md) para detalhes da configuração local, da arquite
 
 ## Diretrizes
 
-- Preserve o estilo de código existente no projeto.
+- Use Google Java Style (dois espaços), aplicado por `./gradlew spotlessApply`.
+- Use imports explícitos e siga as regras de nomenclatura do Checkstyle. `./gradlew check` valida formatação, lint e testes; o CI falha quando houver violações.
 - Mantenha a merge request focada em uma única alteração.
 - Inclua ou atualize testes e documentação quando necessário.
 - Verifique se o pipeline Jenkins concluiu com sucesso.

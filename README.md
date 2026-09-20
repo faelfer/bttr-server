@@ -108,6 +108,22 @@ O backend aceita senhas de 4 a 128 caracteres com maiúscula, minúscula, númer
 
 ## Testes e build
 
+O Gradle gerencia Spotless 8.10.2, google-java-format 1.36.1 e Checkstyle 14.1.0.
+O código Java de produção e testes segue Google Java Style, com dois espaços.
+O Checkstyle verifica imports explícitos, redundantes ou não utilizados e convenções
+de nomenclatura. Código gerado fica fora dessas verificações.
+
+```bash
+./gradlew spotlessApply                    # Corrigir a formatação localmente
+./gradlew spotlessCheck checkstyleMain checkstyleTest  # Verificar sem alterar arquivos
+./gradlew check                            # Formatação, lint e testes
+```
+
+As verificações também fazem parte de `build` e falham ao encontrar violações.
+O CI somente verifica o código; execute `spotlessApply` antes de fazer commit.
+Relatórios Checkstyle: `build/reports/checkstyle/{main,test}.{html,xml}`.
+As ferramentas são baixadas pelo Gradle e não exigem instalação manual no Jenkins.
+
 ```bash
 ./gradlew test
 ./gradlew build
@@ -135,7 +151,7 @@ O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MA
 
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build --no-daemon --console=plain`, incluindo a suíte de testes. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e arquiva o relatório HTML de `build/reports/tests/test`.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build --no-daemon --console=plain`, incluindo Spotless, Checkstyle e a suíte de testes. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e arquiva os relatórios de `build/reports/tests/test` e `build/reports/checkstyle`, inclusive os disponíveis após uma falha.
 
 Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
 
