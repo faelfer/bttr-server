@@ -11,9 +11,17 @@ services:
       _TEST_QUARKUS_DATASOURCE_JDBC_URL: jdbc:postgresql://postgres-test:5432/bttr_test
       _TEST_QUARKUS_DATASOURCE_USERNAME: bttr_test
       _TEST_QUARKUS_DATASOURCE_PASSWORD: bttr_test
+      DATABASE_URL: jdbc:postgresql://postgres-test:5432/bttr_test
+      DATABASE_USERNAME: bttr_test
+      DATABASE_PASSWORD: bttr_test
+      KEYCLOAK_URL: http://localhost:1
+      KEYCLOAK_CLIENT_SECRET: integration-test-secret
+      QUARKUS_OIDC_DISCOVERY_ENABLED: "false"
+      QUARKUS_OIDC_JWKS_PATH: /certs
+      QUARKUS_OIDC_JWKS_RESOLVE_EARLY: "false"
     volumes:
       - ${CI_WORKSPACE:-.}:/workspace:z
-    command: ["./gradlew", "clean", "test", "--no-daemon", "--console=plain"]
+    command: ["./gradlew", "clean", "build", "quarkusIntTest", "--no-daemon", "--console=plain"]
     depends_on:
       postgres-test:
         condition: service_healthy

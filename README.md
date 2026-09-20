@@ -115,7 +115,7 @@ de nomenclatura. Código gerado fica fora dessas verificações.
 
 ```bash
 ./gradlew spotlessApply                    # Corrigir a formatação localmente
-./gradlew spotlessCheck checkstyleMain checkstyleTest  # Verificar sem alterar arquivos
+./gradlew spotlessCheck checkstyleMain checkstyleTest checkstyleIntegrationTest
 ./gradlew check                            # Formatação, lint e testes
 ```
 
@@ -127,9 +127,16 @@ As ferramentas são baixadas pelo Gradle e não exigem instalação manual no Je
 ```bash
 ./gradlew test
 ./gradlew build
+./gradlew quarkusIntTest
 ```
 
 Docker deve estar disponível. Os testes criam um **PostgreSQL isolado via Dev Services**, aplicam as migrações reais e simulam o provedor de identidade com Mockito. Não usam o banco de desenvolvimento. Cobrem contratos HTTP, validação, paginação, datas, isolamento entre usuários, cascatas e falhas de autenticação. Relatório: `build/reports/tests/test/index.html`.
+
+`quarkusIntTest` executa os testes de `src/integrationTest` como caixa-preta contra o
+JAR produzido pelo build, usando o perfil de produção. A suíte confirma que o artefato
+empacotado inicia conectado ao PostgreSQL, publica health e OpenAPI e aplica validação e
+autenticação na fronteira HTTP. Ela não usa injeção CDI nem mocks internos. Relatório:
+`build/reports/tests/quarkusIntTest/index.html`.
 
 Para executar a suíte com Java 21 e PostgreSQL fornecidos pelo Compose de CI:
 
@@ -139,7 +146,7 @@ docker compose -f compose.ci.yaml run --rm tests
 docker compose -f compose.ci.yaml down --volumes --remove-orphans
 ```
 
-O `compose.ci.yaml` é independente do ambiente de desenvolvimento. Ele executa `./gradlew clean test`, aguarda o PostgreSQL ficar saudável e desativa Dev Services no perfil de testes. O banco é temporário, sem portas publicadas; os relatórios ficam em `build/` e o cache Gradle em `.gradle/ci`. As variáveis `CI_UID` e `CI_GID` mantêm os arquivos gerados com o usuário do agente. O comando `run` retorna o código de saída dos testes; execute `down` também após falhas.
+O `compose.ci.yaml` é independente do ambiente de desenvolvimento. Ele executa `./gradlew clean build quarkusIntTest`, aguarda o PostgreSQL ficar saudável e desativa Dev Services nos testes JVM. O mesmo banco temporário, sem portas publicadas, é fornecido ao JAR durante os testes de integração. Os relatórios ficam em `build/` e o cache Gradle em `.gradle/ci`. As variáveis `CI_UID` e `CI_GID` mantêm os arquivos gerados com o usuário do agente. O comando `run` retorna o código de saída dos testes; execute `down` também após falhas.
 
 Com Compose e a API em execução, verifique também os **20 endpoints contra Keycloak e Mailpit reais** (Python 3, sem dependências):
 
@@ -151,7 +158,7 @@ O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MA
 
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build --no-daemon --console=plain`, incluindo Spotless, Checkstyle e a suíte de testes. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e arquiva os relatórios de `build/reports/tests/test` e `build/reports/checkstyle`, inclusive os disponíveis após uma falha.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e `build/test-results/quarkusIntTest` e arquiva os relatórios de `build/reports/tests` e `build/reports/checkstyle`, inclusive os disponíveis após uma falha.
 
 Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
 

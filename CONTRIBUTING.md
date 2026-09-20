@@ -24,6 +24,7 @@ Há várias formas de contribuir com o projeto: enviar código, relatar bugs e p
    ```bash
    ./gradlew spotlessApply
    ./gradlew build
+   ./gradlew quarkusIntTest
    ```
 
 6. Faça commits com mensagens claras e envie a branch ao seu fork:
@@ -39,7 +40,7 @@ Consulte o [README](README.md) para detalhes da configuração local, da arquite
 ## Diretrizes
 
 - Use Google Java Style (dois espaços), aplicado por `./gradlew spotlessApply`.
-- Use imports explícitos e siga as regras de nomenclatura do Checkstyle. `./gradlew check` valida formatação, lint e testes; o CI falha quando houver violações.
+- Use imports explícitos e siga as regras de nomenclatura do Checkstyle. `./gradlew check` valida formatação, lint e testes JVM. `./gradlew quarkusIntTest` valida o artefato empacotado; o CI executa ambos e falha quando houver violações.
 - Mantenha a merge request focada em uma única alteração.
 - Inclua ou atualize testes e documentação quando necessário.
 - Verifique se o pipeline Jenkins concluiu com sucesso.

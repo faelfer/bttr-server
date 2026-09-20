@@ -49,7 +49,7 @@ pipeline {
                         export COMPOSE_PROJECT_NAME="bttr-ci-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
                         trap 'docker compose -f compose.ci.yaml down --volumes --remove-orphans' EXIT
                         docker compose -f compose.ci.yaml run --rm -T tests \
-                            ./gradlew clean build --no-daemon --console=plain
+                            ./gradlew clean build quarkusIntTest --no-daemon --console=plain
                     '''
                 }
             }
@@ -59,9 +59,9 @@ pipeline {
     post {
         always {
             junit allowEmptyResults: true,
-                testResults: 'build/test-results/test/*.xml'
+                testResults: 'build/test-results/test/*.xml,build/test-results/quarkusIntTest/*.xml'
             archiveArtifacts allowEmptyArchive: true,
-                artifacts: 'build/reports/tests/test/**,build/reports/checkstyle/**'
+                artifacts: 'build/reports/tests/**,build/reports/checkstyle/**'
         }
     }
 }

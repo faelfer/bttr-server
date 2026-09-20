@@ -35,7 +35,9 @@ java {
 
 spotless {
     java {
-        target 'src/main/java/**/*.java', 'src/test/java/**/*.java'
+        target 'src/main/java/**/*.java',
+                'src/test/java/**/*.java',
+                'src/integrationTest/java/**/*.java'
         googleJavaFormat('1.36.1')
         removeUnusedImports()
         trimTrailingWhitespace()
@@ -45,7 +47,11 @@ spotless {
 
 checkstyle {
     toolVersion = '14.1.0'
-    sourceSets = [project.sourceSets.main, project.sourceSets.test]
+    sourceSets = [
+        project.sourceSets.main,
+        project.sourceSets.test,
+        project.sourceSets.integrationTest
+    ]
     configFile = file('config/checkstyle/checkstyle.xml')
     maxWarnings = 0
     ignoreFailures = false
@@ -57,6 +63,10 @@ tasks.named('checkstyleMain') {
 
 tasks.named('checkstyleTest') {
     source = fileTree('src/test/java') { include '**/*.java' }
+}
+
+tasks.named('checkstyleIntegrationTest') {
+    source = fileTree('src/integrationTest/java') { include '**/*.java' }
 }
 
 tasks.withType(Checkstyle).configureEach {
