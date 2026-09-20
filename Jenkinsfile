@@ -25,7 +25,13 @@ pipeline {
         stage('Build and test') {
             steps {
                 gitlabCommitStatus(name: 'build') {
-                    sh './gradlew build --no-daemon'
+                    sh '''
+                        export CI_UID="$(id -u)" CI_GID="$(id -g)"
+                        export COMPOSE_PROJECT_NAME="bttr-ci-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
+                        trap 'docker compose -f compose.ci.yaml down --volumes --remove-orphans' EXIT
+                        docker compose -f compose.ci.yaml run --rm -T tests \
+                            ./gradlew clean build --no-daemon --console=plain
+                    '''
                 }
             }
         }

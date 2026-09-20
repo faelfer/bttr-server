@@ -115,6 +115,16 @@ O backend aceita senhas de 4 a 128 caracteres com maiúscula, minúscula, númer
 
 Docker deve estar disponível. Os testes criam um **PostgreSQL isolado via Dev Services**, aplicam as migrações reais e simulam o provedor de identidade com Mockito. Não usam o banco de desenvolvimento. Cobrem contratos HTTP, validação, paginação, datas, isolamento entre usuários, cascatas e falhas de autenticação. Relatório: `build/reports/tests/test/index.html`.
 
+Para executar a suíte com Java 21 e PostgreSQL fornecidos pelo Compose de CI:
+
+```bash
+export CI_UID="$(id -u)" CI_GID="$(id -g)"
+docker compose -f compose.ci.yaml run --rm tests
+docker compose -f compose.ci.yaml down --volumes --remove-orphans
+```
+
+O `compose.ci.yaml` é independente do ambiente de desenvolvimento. Ele executa `./gradlew clean test`, aguarda o PostgreSQL ficar saudável e desativa Dev Services no perfil de testes. O banco é temporário, sem portas publicadas; os relatórios ficam em `build/` e o cache Gradle em `.gradle/ci`. As variáveis `CI_UID` e `CI_GID` mantêm os arquivos gerados com o usuário do agente. O comando `run` retorna o código de saída dos testes; execute `down` também após falhas.
+
 Com Compose e a API em execução, verifique também os **20 endpoints contra Keycloak e Mailpit reais** (Python 3, sem dependências):
 
 ```bash
@@ -125,9 +135,9 @@ O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MA
 
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório, executa `./gradlew build --no-daemon`, publica os resultados JUnit de `build/test-results/test` e arquiva o relatório HTML de `build/reports/tests/test`.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build --no-daemon --console=plain`, incluindo a suíte de testes. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e arquiva o relatório HTML de `build/reports/tests/test`.
 
-Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix, ter JDK 21 e Docker acessível pelo usuário do agente, pois os testes iniciam um PostgreSQL isolado por meio do Quarkus Dev Services. Também são necessários os plugins Pipeline, JUnit e GitLab.
+Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, o workspace precisa estar disponível no mesmo caminho absoluto no host para o bind mount funcionar. Também são necessários os plugins Pipeline, JUnit e GitLab.
 
 Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. O bloco `gitlabCommitStatus` publica no commit o estado da etapa `build`.
 
