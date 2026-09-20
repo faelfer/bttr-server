@@ -7,7 +7,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class UserMapper {
-    public UserView toView(UserEntity user, IdentityProvider.Profile profile) {
-        return new UserView(user.id, profile.username(), profile.email(), user.created);
-    }
+  public UserView toView(UserEntity user, IdentityProvider.Profile profile) {
+    return new UserView(user.id, profile.username(), profile.email(), user.created);
+  }
 }

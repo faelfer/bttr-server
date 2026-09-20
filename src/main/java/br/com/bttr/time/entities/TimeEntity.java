@@ -15,17 +15,17 @@ import java.time.Instant;
 @Entity
 @Table(name = "time_entry")
 public class TimeEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "skill_id", nullable = false)
-    public SkillEntity skill;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "skill_id", nullable = false)
+  public SkillEntity skill;
 
-    @Column(nullable = false)
-    public Integer minutes;
+  @Column(nullable = false)
+  public Integer minutes;
 
-    @Column(nullable = false)
-    public Instant created = Instant.now();
+  @Column(nullable = false)
+  public Instant created = Instant.now();
 }

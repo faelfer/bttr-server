@@ -7,9 +7,9 @@ import jakarta.inject.Singleton;
 
 @Singleton
 public class JsonConfiguration implements ObjectMapperCustomizer {
-    @Override
-    public void customize(ObjectMapper mapper) {
-        // Preserve numeric strings from HTML inputs, but never silently truncate fractions.
-        mapper.disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
-    }
+  @Override
+  public void customize(ObjectMapper mapper) {
+    // Preserve numeric strings from HTML inputs, but never silently truncate fractions.
+    mapper.disable(DeserializationFeature.ACCEPT_FLOAT_AS_INT);
+  }
 }

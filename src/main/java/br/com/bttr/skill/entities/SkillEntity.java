@@ -15,20 +15,20 @@ import java.time.Instant;
 @Entity
 @Table(name = "skill")
 public class SkillEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
-    public UserEntity user;
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "user_id", nullable = false)
+  public UserEntity user;
 
-    @Column(nullable = false, length = 120)
-    public String name;
+  @Column(nullable = false, length = 120)
+  public String name;
 
-    @Column(nullable = false)
-    public Integer daily;
+  @Column(nullable = false)
+  public Integer daily;
 
-    @Column(nullable = false)
-    public Instant created = Instant.now();
+  @Column(nullable = false)
+  public Instant created = Instant.now();
 }

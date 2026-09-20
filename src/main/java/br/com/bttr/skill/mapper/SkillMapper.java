@@ -6,7 +6,7 @@ import jakarta.enterprise.context.ApplicationScoped;
 
 @ApplicationScoped
 public class SkillMapper {
-    public SkillView toView(SkillEntity skill) {
-        return new SkillView(skill.id, skill.name, skill.daily, skill.created);
-    }
+  public SkillView toView(SkillEntity skill) {
+    return new SkillView(skill.id, skill.name, skill.daily, skill.created);
+  }
 }

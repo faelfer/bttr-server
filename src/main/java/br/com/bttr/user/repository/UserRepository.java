@@ -7,7 +7,7 @@ import java.util.Optional;
 
 @ApplicationScoped
 public class UserRepository implements PanacheRepository<UserEntity> {
-    public Optional<UserEntity> findByKeycloakId(String keycloakId) {
-        return find("keycloakId", keycloakId).firstResultOptional();
-    }
+  public Optional<UserEntity> findByKeycloakId(String keycloakId) {
+    return find("keycloakId", keycloakId).firstResultOptional();
+  }
 }

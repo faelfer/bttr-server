@@ -10,15 +10,15 @@ import java.time.Instant;
 import java.util.List;
 
 public final class TimeDtos {
-    private TimeDtos() {}
+  private TimeDtos() {}
 
-    public record TimeInput(
-            @JsonProperty("skill_id") @NotNull @Positive Long skillId,
-            @NotNull @Min(1) @Max(1440) Integer minutes) {}
+  public record TimeInput(
+      @JsonProperty("skill_id") @NotNull @Positive Long skillId,
+      @NotNull @Min(1) @Max(1440) Integer minutes) {}
 
-    public record TimeView(Long id, Integer minutes, Instant created, SkillView skill) {}
+  public record TimeView(Long id, Integer minutes, Instant created, SkillView skill) {}
 
-    public record TimeResponse(TimeView time) {}
+  public record TimeResponse(TimeView time) {}
 
-    public record TimesResponse(List<TimeView> times) {}
+  public record TimesResponse(List<TimeView> times) {}
 }

@@ -11,13 +11,13 @@ import java.time.Instant;
 @Entity
 @Table(name = "app_user")
 public class UserEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    public Long id;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  public Long id;
 
-    @Column(name = "keycloak_id", nullable = false, unique = true)
-    public String keycloakId;
+  @Column(name = "keycloak_id", nullable = false, unique = true)
+  public String keycloakId;
 
-    @Column(nullable = false)
-    public Instant created = Instant.now();
+  @Column(nullable = false)
+  public Instant created = Instant.now();
 }

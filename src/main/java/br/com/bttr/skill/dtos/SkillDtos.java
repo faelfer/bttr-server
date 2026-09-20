@@ -9,15 +9,14 @@ import java.time.Instant;
 import java.util.List;
 
 public final class SkillDtos {
-    private SkillDtos() {}
+  private SkillDtos() {}
 
-    public record SkillInput(
-            @NotBlank @Size(min = 2, max = 120) String name,
-            @NotNull @Min(1) @Max(1440) Integer daily) {}
+  public record SkillInput(
+      @NotBlank @Size(min = 2, max = 120) String name, @NotNull @Min(1) @Max(1440) Integer daily) {}
 
-    public record SkillView(Long id, String name, Integer daily, Instant created) {}
+  public record SkillView(Long id, String name, Integer daily, Instant created) {}
 
-    public record SkillResponse(SkillView skill) {}
+  public record SkillResponse(SkillView skill) {}
 
-    public record SkillsResponse(List<SkillView> skills) {}
+  public record SkillsResponse(List<SkillView> skills) {}
 }
