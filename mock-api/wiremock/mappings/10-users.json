@@ -1,0 +1,193 @@
+{
+  "mappings": [
+    {
+      "name": "Sign up conflict",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/sign_up",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.email",
+              "equalTo": "duplicate@example.com"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 409,
+        "jsonBody": {
+          "message": "e-mail já cadastrado."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Sign up",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/sign_up"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "message": "usuário foi criado com sucesso."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Sign in denied",
+      "priority": 1,
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/sign_in",
+        "bodyPatterns": [
+          {
+            "matchesJsonPath": {
+              "expression": "$.email",
+              "equalTo": "invalid@example.com"
+            }
+          }
+        ]
+      },
+      "response": {
+        "status": 401,
+        "jsonBody": {
+          "message": "e-mail ou senha incorretos."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Sign in",
+      "priority": 5,
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/sign_in"
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "users/sign-in.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Forgot password",
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/forgot_password"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "message": "se o e-mail estiver cadastrado, enviaremos as instruções para redefinir sua senha."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Read profile",
+      "request": {
+        "method": "GET",
+        "urlPath": "/users/profile",
+        "headers": {
+          "Authorization": {
+            "matches": "^Token .+$"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "users/profile.json",
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Update profile",
+      "request": {
+        "method": "PATCH",
+        "urlPath": "/users/profile",
+        "headers": {
+          "Authorization": {
+            "matches": "^Token .+$"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "message": "perfil alterado com sucesso."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Delete profile",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/users/profile",
+        "headers": {
+          "Authorization": {
+            "matches": "^Token .+$"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "message": "usuário excluido com sucesso."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Redefine password",
+      "request": {
+        "method": "POST",
+        "urlPath": "/users/redefine_password",
+        "headers": {
+          "Authorization": {
+            "matches": "^Token .+$"
+          }
+        }
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "message": "senha alterada com sucesso."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    }
+  ]
+}

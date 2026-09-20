@@ -64,6 +64,61 @@ REACT_APP_API=http://localhost:8000
 
 Reinicie o cliente depois de alterar essa variável. A API aceita o cabeçalho que ele já envia: `Authorization: Token <access_token>`. No Swagger, faça `POST /users/sign_in` e cole **Token seguido de espaço e do token** em **Authorize**.
 
+## Mock API para frontends
+
+O projeto fornece uma imagem WireMock 3.13.2 independente da aplicação, do PostgreSQL
+e do Keycloak. Ela implementa os contratos de usuários, habilidades e tempos, inclui
+CORS, respostas de erro e cenários stateful para os fluxos CRUD. Os mappings e fixtures
+versionados ficam em `mock-api/wiremock`; a imagem resultante chama-se
+`bttr-server-mock:local` por padrão.
+
+Inicie o mock para desenvolvimento local:
+
+```bash
+docker compose -f compose.mock.yaml up -d --build --wait mock-api
+curl http://localhost:8090/mock/health
+```
+
+Use `http://localhost:8090` como URL da API no React ou Angular. O login aceita qualquer
+payload válido e retorna o token determinístico `mock-access-token`; chamadas protegidas
+devem enviar `Authorization: Token mock-access-token`. Os casos especiais
+`invalid@example.com` no login e `duplicate@example.com` no cadastro retornam 401 e 409,
+respectivamente.
+
+As coleções começam com a habilidade `Java` (`id=1`) e um tempo de 30 minutos
+(`id=1`). Criar uma habilidade ou tempo disponibiliza o `id=2`; atualizar e excluir esse
+registro altera as consultas seguintes. Reinicie todos os cenários antes de cada spec
+E2E independente:
+
+```bash
+curl -X POST http://localhost:8090/__admin/scenarios/reset
+```
+
+Execute o mesmo smoke test usado pelo Jenkins e encerre o ambiente:
+
+```bash
+docker compose -f compose.mock.yaml --profile test run --rm mock-smoke
+docker compose -f compose.mock.yaml --profile test down --remove-orphans
+```
+
+Quando o frontend e seu executor E2E estiverem na mesma rede Compose, use
+`http://mock-api:8080`; um navegador aberto diretamente no host deve usar
+`http://localhost:8090`. Como o estado do WireMock pertence ao container, execuções E2E
+paralelas devem usar projetos Compose diferentes. Para compartilhar a imagem com outros
+repositórios, publique uma tag imutável no GitLab Container Registry e fixe essa tag no
+pipeline do consumidor, em vez de usar `latest`:
+
+```bash
+docker build -t registry.example.com/bttr/bttr-server/mock-api:1.0.0 mock-api
+docker push registry.example.com/bttr/bttr-server/mock-api:1.0.0
+```
+
+O mock é destinado a desenvolvimento e E2E de frontend. A suíte de integração contra
+o backend e o Keycloak reais deve continuar existindo para validar OIDC, persistência e
+regras de negócio. MSW deve ser instalado nos repositórios React/Angular, onde ficam os
+testes unitários e de componentes; Pact será adicionado quando esses consumidores
+publicarem contratos verificáveis pelo provider.
+
 ## Contrato HTTP
 
 As operações bem-sucedidas retornam HTTP 200, inclusive criação/exclusão, com JSON `{ "message": "..." }` nas mutações. Erros retornam `{ "message": "..." }`: 400 para dados inválidos, 401 para autenticação, 404 para recurso inexistente ou de outro usuário, 409 para conflito e 503 para indisponibilidade do Keycloak.
@@ -153,6 +208,10 @@ empacotado inicia conectado ao PostgreSQL, publica health e OpenAPI e aplica val
 autenticação na fronteira HTTP. Ela não usa injeção CDI nem mocks internos. Relatório:
 `build/reports/tests/quarkusIntTest/index.html`.
 
+Cada build também gera `build/generated/openapi/openapi.{yaml,json}` diretamente das
+anotações e endpoints Quarkus. Esses documentos são arquivados pelo Jenkins para os
+consumidores utilizarem a versão do contrato correspondente ao commit.
+
 Para executar a suíte com Java 21 e PostgreSQL fornecidos pelo Compose de CI:
 
 ```bash
@@ -224,7 +283,7 @@ baixos permanecem visíveis para triagem.
 
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Em seguida, **SonarQube Analysis** envia código, bytecode, resultados de testes e cobertura JaCoCo ao SonarQube; **Quality Gate** aguarda o processamento e interrompe o pipeline se o gate reprovar. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle, JaCoCo, k6, Trivy e ZAP.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. A etapa **Mock API** constrói uma tag `bttr-server-mock` exclusiva do job/build, aguarda o WireMock ficar saudável e valida CORS, autenticação, erros e os ciclos stateful de habilidades e tempos. Em seguida, **SonarQube Analysis** envia código, bytecode, resultados de testes e cobertura JaCoCo ao SonarQube; **Quality Gate** aguarda o processamento e interrompe o pipeline se o gate reprovar. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. A etapa de segurança analisa o código e a imagem com Trivy e executa o ZAP autenticado contra uma nova instância efêmera da API. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar o contrato OpenAPI e os relatórios de testes, Checkstyle, JaCoCo, k6, Trivy e ZAP.
 
 Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit, GitLab e **SonarQube Scanner for Jenkins**.
 
@@ -252,7 +311,7 @@ A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pi
 
 Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
-Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `sonarqube`, `performance` e `security`.
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `mock-api`, `sonarqube`, `performance` e `security`.
 
 ## Empacotar e configurar
 

@@ -55,6 +55,38 @@ pipeline {
             }
         }
 
+        stage('Mock API') {
+            steps {
+                gitlabCommitStatus(name: 'mock-api') {
+                    sh '''
+                        if [ -n "${CI_HOST_JENKINS_HOME:-}" ]; then
+                            case "$WORKSPACE" in
+                                "$JENKINS_HOME"/*)
+                                    export CI_WORKSPACE="$CI_HOST_JENKINS_HOME/${WORKSPACE#"$JENKINS_HOME"/}"
+                                    ;;
+                                *)
+                                    echo 'WORKSPACE deve estar dentro de JENKINS_HOME para mapear o caminho no host.' >&2
+                                    exit 1
+                                    ;;
+                            esac
+                        fi
+
+                        mock_job_hash="$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)"
+                        export COMPOSE_PROJECT_NAME="bttr-mock-$mock_job_hash-$BUILD_NUMBER"
+                        export BTTR_MOCK_API_IMAGE="bttr-server-mock:$mock_job_hash-$BUILD_NUMBER"
+                        export MOCK_API_PORT=0
+                        trap 'docker compose -f compose.mock.yaml --profile test down --remove-orphans' EXIT
+                        docker compose -f compose.mock.yaml build mock-api
+                        docker compose -f compose.mock.yaml up -d --wait mock-api
+                        docker compose -f compose.mock.yaml --profile test run --rm -T --no-deps mock-smoke || {
+                            docker compose -f compose.mock.yaml logs mock-api
+                            exit 1
+                        }
+                    '''
+                }
+            }
+        }
+
         stage('SonarQube Analysis') {
             steps {
                 gitlabCommitStatus(name: 'sonarqube') {
@@ -149,7 +181,7 @@ pipeline {
             junit allowEmptyResults: true,
                 testResults: 'build/test-results/test/*.xml,build/test-results/quarkusIntTest/*.xml,build/reports/k6/junit.xml'
             archiveArtifacts allowEmptyArchive: true,
-                artifacts: 'build/reports/tests/**,build/reports/checkstyle/**,build/reports/jacoco/**,build/reports/k6/**,build/reports/security/**'
+                artifacts: 'build/generated/openapi/**,build/reports/tests/**,build/reports/checkstyle/**,build/reports/jacoco/**,build/reports/k6/**,build/reports/security/**'
         }
     }
 }

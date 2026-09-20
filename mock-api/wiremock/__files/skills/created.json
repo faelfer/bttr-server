@@ -1,0 +1,16 @@
+{
+  "skills": [
+    {
+      "id": 2,
+      "name": "Kotlin",
+      "daily": 60,
+      "created": "2026-01-03T10:00:00Z"
+    },
+    {
+      "id": 1,
+      "name": "Java",
+      "daily": 30,
+      "created": "2026-01-02T10:00:00Z"
+    }
+  ]
+}

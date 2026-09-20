@@ -1,0 +1,26 @@
+{
+  "times": [
+    {
+      "id": 2,
+      "minutes": 60,
+      "created": "2026-01-05T10:00:00Z",
+      "skill": {
+        "id": 1,
+        "name": "Java",
+        "daily": 30,
+        "created": "2026-01-02T10:00:00Z"
+      }
+    },
+    {
+      "id": 1,
+      "minutes": 30,
+      "created": "2026-01-04T10:00:00Z",
+      "skill": {
+        "id": 1,
+        "name": "Java",
+        "daily": 30,
+        "created": "2026-01-02T10:00:00Z"
+      }
+    }
+  ]
+}

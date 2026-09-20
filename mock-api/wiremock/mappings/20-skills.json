@@ -1,0 +1,427 @@
+{
+  "mappings": [
+    {
+      "name": "List initial skills",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_from_user",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "skills/initial.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List skills after create",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_from_user",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "skills/created.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List skills after created skill update",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_from_user",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "skills/created-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List skills after base skill update",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_from_user",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "skills/base-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List skills after delete",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_from_user",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "skills/empty.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page initial skills",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+            {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          ]
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page skills after create",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "count": 2,
+          "next": null,
+          "previous": null,
+          "results": [
+            {"id": 2, "name": "Kotlin", "daily": 60, "created": "2026-01-03T10:00:00Z"},
+            {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          ]
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page skills after created skill update",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "count": 2,
+          "next": null,
+          "previous": null,
+          "results": [
+            {"id": 2, "name": "Quarkus", "daily": 90, "created": "2026-01-03T10:00:00Z"},
+            {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          ]
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page skills after base skill update",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "count": 1,
+          "next": null,
+          "previous": null,
+          "results": [
+            {"id": 1, "name": "Java atualizado", "daily": 45, "created": "2026-01-02T10:00:00Z"}
+          ]
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page skills after delete",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skills_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"count": 0, "next": null, "previous": null, "results": []},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read base skill",
+      "priority": 10,
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "skill": {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read updated base skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "skill": {"id": 1, "name": "Java atualizado", "daily": 45, "created": "2026-01-02T10:00:00Z"}
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read deleted base skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {"message": "habilidade não encontrada."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read created skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skill_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "skill": {"id": 2, "name": "Kotlin", "daily": 60, "created": "2026-01-03T10:00:00Z"}
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read updated created skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/skills/skill_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "skill": {"id": 2, "name": "Quarkus", "daily": 90, "created": "2026-01-03T10:00:00Z"}
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Create skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "SKILL_CREATED",
+      "request": {
+        "method": "POST",
+        "urlPath": "/skills/create_skill",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade foi criada com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Update created skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED",
+      "newScenarioState": "SKILL_CREATED_UPDATED",
+      "request": {
+        "method": "PUT",
+        "urlPath": "/skills/update_skill_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade alterada com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Update base skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "SKILL_BASE_UPDATED",
+      "request": {
+        "method": "PUT",
+        "urlPath": "/skills/update_skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade alterada com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete created skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED",
+      "newScenarioState": "Started",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/skills/delete_skill_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade excluida com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete updated created skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_CREATED_UPDATED",
+      "newScenarioState": "Started",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/skills/delete_skill_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade excluida com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete base skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "SKILL_EMPTY",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/skills/delete_skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade excluida com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete updated base skill",
+      "priority": 5,
+      "scenarioName": "Skills lifecycle",
+      "requiredScenarioState": "SKILL_BASE_UPDATED",
+      "newScenarioState": "SKILL_EMPTY",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/skills/delete_skill_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "habilidade excluida com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Duplicate or out-of-sequence skill create",
+      "priority": 50,
+      "request": {
+        "method": "POST",
+        "urlPath": "/skills/create_skill",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 409,
+        "jsonBody": {"message": "habilidade já existe ou o cenário precisa ser reiniciado."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Unknown skill resource",
+      "priority": 50,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/skills/(skill_by_id|update_skill_by_id|delete_skill_by_id)/.*",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {"message": "habilidade não encontrada."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    }
+  ]
+}

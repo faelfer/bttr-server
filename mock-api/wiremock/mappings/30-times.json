@@ -1,0 +1,417 @@
+{
+  "mappings": [
+    {
+      "name": "List initial times by date",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_date",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/initial.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List times by date after create",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_date",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/created.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List times by date after created time update",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_date",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/created-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List times by date after base time update",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_date",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/base-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "List times by date after delete",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_date",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/empty.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page initial times",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "Started",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/page-initial.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page times after create",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/page-created.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page times after created time update",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/page-created-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page times after base time update",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/page-base-updated.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Page times after delete",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/times_by_page",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "bodyFileName": "times/page-empty.json",
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read base time",
+      "priority": 10,
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "time": {
+            "id": 1,
+            "minutes": 30,
+            "created": "2026-01-04T10:00:00Z",
+            "skill": {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          }
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read updated base time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_BASE_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "time": {
+            "id": 1,
+            "minutes": 45,
+            "created": "2026-01-04T10:00:00Z",
+            "skill": {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          }
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read deleted base time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_EMPTY",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {"message": "tempo não encontrado."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read created time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/time_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "time": {
+            "id": 2,
+            "minutes": 60,
+            "created": "2026-01-05T10:00:00Z",
+            "skill": {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          }
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Read updated created time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED_UPDATED",
+      "request": {
+        "method": "GET",
+        "urlPath": "/times/time_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "time": {
+            "id": 2,
+            "minutes": 90,
+            "created": "2026-01-05T10:00:00Z",
+            "skill": {"id": 1, "name": "Java", "daily": 30, "created": "2026-01-02T10:00:00Z"}
+          }
+        },
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Create time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "TIME_CREATED",
+      "request": {
+        "method": "POST",
+        "urlPath": "/times/create_time",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo foi criado com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Update created time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED",
+      "newScenarioState": "TIME_CREATED_UPDATED",
+      "request": {
+        "method": "PUT",
+        "urlPath": "/times/update_time_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo alterado com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Update base time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "TIME_BASE_UPDATED",
+      "request": {
+        "method": "PUT",
+        "urlPath": "/times/update_time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo alterado com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete created time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED",
+      "newScenarioState": "Started",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/times/delete_time_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo excluido com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete updated created time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_CREATED_UPDATED",
+      "newScenarioState": "Started",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/times/delete_time_by_id/2",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo excluido com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete base time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "Started",
+      "newScenarioState": "TIME_EMPTY",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/times/delete_time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo excluido com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Delete updated base time",
+      "priority": 5,
+      "scenarioName": "Times lifecycle",
+      "requiredScenarioState": "TIME_BASE_UPDATED",
+      "newScenarioState": "TIME_EMPTY",
+      "request": {
+        "method": "DELETE",
+        "urlPath": "/times/delete_time_by_id/1",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {"message": "tempo excluido com sucesso."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Out-of-sequence time create",
+      "priority": 50,
+      "request": {
+        "method": "POST",
+        "urlPath": "/times/create_time",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 409,
+        "jsonBody": {"message": "o cenário de tempo precisa ser reiniciado."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    },
+    {
+      "name": "Unknown time resource",
+      "priority": 50,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/times/(time_by_id|update_time_by_id|delete_time_by_id)/.*",
+        "headers": {"Authorization": {"matches": "^Token .+$"}}
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {"message": "tempo não encontrado."},
+        "headers": {"Content-Type": "application/json", "Access-Control-Allow-Origin": "*"}
+      }
+    }
+  ]
+}

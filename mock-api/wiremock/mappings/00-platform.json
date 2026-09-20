@@ -1,0 +1,105 @@
+{
+  "mappings": [
+    {
+      "name": "CORS preflight",
+      "priority": 1,
+      "request": {
+        "method": "OPTIONS",
+        "urlPathPattern": "/.*"
+      },
+      "response": {
+        "status": 204,
+        "headers": {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+          "Access-Control-Allow-Headers": "Accept,Authorization,Content-Type",
+          "Access-Control-Max-Age": "86400"
+        }
+      }
+    },
+    {
+      "name": "Mock API health",
+      "priority": 1,
+      "request": {
+        "method": "GET",
+        "urlPath": "/mock/health"
+      },
+      "response": {
+        "status": 200,
+        "jsonBody": {
+          "status": "UP",
+          "service": "bttr-api-mock",
+          "version": "1.0"
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Protected endpoint without token",
+      "priority": 2,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/(users/(profile|redefine_password)|skills/.*|times/.*)",
+        "headers": {
+          "Authorization": {
+            "absent": true
+          }
+        }
+      },
+      "response": {
+        "status": 401,
+        "jsonBody": {
+          "message": "não autorizado."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Protected endpoint with invalid token scheme",
+      "priority": 3,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/(users/(profile|redefine_password)|skills/.*|times/.*)",
+        "headers": {
+          "Authorization": {
+            "doesNotMatch": "^Token .+$"
+          }
+        }
+      },
+      "response": {
+        "status": 401,
+        "jsonBody": {
+          "message": "não autorizado."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    },
+    {
+      "name": "Unknown API route",
+      "priority": 100,
+      "request": {
+        "method": "ANY",
+        "urlPathPattern": "/.*"
+      },
+      "response": {
+        "status": 404,
+        "jsonBody": {
+          "message": "endpoint não configurado no mock."
+        },
+        "headers": {
+          "Content-Type": "application/json",
+          "Access-Control-Allow-Origin": "*"
+        }
+      }
+    }
+  ]
+}

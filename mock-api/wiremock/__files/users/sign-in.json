@@ -1,0 +1,10 @@
+{
+  "token": "mock-access-token",
+  "user": {
+    "id": 1,
+    "username": "mock.user",
+    "email": "mock.user@bttr.local",
+    "created": "2026-01-01T10:00:00Z"
+  },
+  "message": "autenticação realizada com sucesso."
+}

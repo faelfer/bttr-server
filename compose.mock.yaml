@@ -1,0 +1,33 @@
+name: bttr-mock
+
+services:
+  mock-api:
+    image: "${BTTR_MOCK_API_IMAGE:-bttr-server-mock:local}"
+    build:
+      context: ./mock-api
+    ports:
+      - "127.0.0.1:${MOCK_API_PORT:-8090}:8080"
+    healthcheck:
+      test:
+        - CMD
+        - bash
+        - -c
+        - >-
+          curl --fail --silent --show-error
+          http://localhost:8080/__admin/mappings >/dev/null
+      interval: 2s
+      timeout: 5s
+      retries: 30
+      start_period: 5s
+
+  mock-smoke:
+    image: python:3.13-alpine
+    profiles: ["test"]
+    environment:
+      BTTR_MOCK_API: http://mock-api:8080
+    volumes:
+      - ${CI_WORKSPACE:-.}/mock-api/smoke.py:/mock-api/smoke.py:ro,z
+    depends_on:
+      mock-api:
+        condition: service_healthy
+    command: ["python3", "/mock-api/smoke.py"]
