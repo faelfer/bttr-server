@@ -1,6 +1,6 @@
 # Bttr Server
 
-Backend Java 21 / Quarkus 3.27.5.2, com Gradle Wrapper 8.14.3, Hibernate ORM with Panache, PostgreSQL, Flyway, Jakarta Bean Validation, SmallRye OpenAPI/Swagger UI e Keycloak. E-mails do Keycloak são capturados pelo Mailpit no ambiente local. Os testes usam JUnit 5, RestAssured e Mockito.
+Backend Java 21 / Quarkus 3.27.5.2, com Gradle Wrapper 8.14.3, Hibernate ORM with Panache, PostgreSQL, Flyway, Jakarta Bean Validation, SmallRye OpenAPI/Swagger UI, Keycloak e métricas Micrometer no formato Prometheus. E-mails do Keycloak são capturados pelo Mailpit no ambiente local. Os testes usam JUnit 5, RestAssured, Mockito e k6.
 
 Implementado a partir de `bttr-client-react/src/services/{user,skill,time}/api.*`, dos formulários e dos mocks E2E do cliente.
 
@@ -49,6 +49,7 @@ As migrações rodam automaticamente e o Hibernate valida o esquema. O Compose i
 | Swagger UI | http://localhost:8000/q/swagger-ui |
 | OpenAPI | http://localhost:8000/q/openapi |
 | Readiness | http://localhost:8000/q/health/ready |
+| Métricas Prometheus | http://localhost:8000/q/metrics |
 | Keycloak | http://localhost:8180 — `admin` / `admin_local` |
 | Mailpit | http://localhost:8025 |
 | PostgreSQL | `localhost:5432/bttr` — `bttr` / `bttr_local` |
@@ -156,9 +157,33 @@ python3 scripts/smoke.py
 
 O script cria duas contas temporárias e as exclui ao terminar. `BTTR_API` e `MAILPIT_API` permitem alterar os endereços de teste.
 
+### Teste de performance
+
+O Quarkus publica métricas da JVM, do sistema e das requisições HTTP em `/q/metrics`
+por meio do Micrometer Prometheus Registry. O ambiente de performance inicia a aplicação
+empacotada, PostgreSQL, Keycloak, Mailpit, Prometheus 3.14.0 e k6 2.2.0 em uma rede
+isolada e sem portas expostas no host.
+
+```bash
+export CI_UID="$(id -u)" CI_GID="$(id -g)"
+mkdir -p build/reports/k6
+docker compose -f compose.performance.yaml up -d --build --wait api prometheus
+docker compose -f compose.performance.yaml run --rm --no-deps k6
+docker compose -f compose.performance.yaml down --volumes --remove-orphans
+```
+
+O cenário em `performance/smoke.js` cria e autentica uma conta temporária, valida o
+scrape real do Prometheus e exercita perfil, habilidades e registros de tempo com dois
+usuários virtuais por 30 segundos. Ele falha se houver checks inválidos, se a taxa de
+erros HTTP chegar a 1%, se o p95 global alcançar 1 segundo, se o p99 alcançar 2 segundos
+ou se o p95 de perfil alcançar 750 ms. Ajuste localmente com `PERFORMANCE_VUS` e
+`PERFORMANCE_DURATION`.
+Os artefatos ficam em `build/reports/k6`: dashboard HTML, resumo JSON e thresholds em
+JUnit XML.
+
 ### Pipeline Jenkins
 
-O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Cada build usa um projeto Compose exclusivo, removido ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit de `build/test-results/test` e `build/test-results/quarkusIntTest` e arquiva os relatórios de `build/reports/tests` e `build/reports/checkstyle`, inclusive os disponíveis após uma falha.
+O pipeline de integração contínua está definido no `Jenkinsfile` da raiz. Ele limpa o workspace, faz checkout do repositório e usa `compose.ci.yaml` para executar `./gradlew clean build quarkusIntTest --no-daemon --console=plain`, incluindo Spotless, Checkstyle, testes JVM e testes black-box do artefato. Depois, `compose.performance.yaml` executa o smoke test autenticado e confirma que o Prometheus coleta as métricas da aplicação. Cada build usa projetos Compose exclusivos, removidos ao terminar mesmo em caso de falha. O Jenkins publica os resultados JUnit dos testes Gradle e dos thresholds k6, além de arquivar os relatórios de testes, Checkstyle e k6, inclusive os disponíveis após uma falha.
 
 Configure o job como **Pipeline from SCM**, apontando para este repositório do GitLab e usando `Jenkinsfile` como **Script Path**. O agente Jenkins deve ser Linux/Unix e ter Docker com Compose v2 ou superior acessível pelo usuário do agente; o JDK 21 é fornecido pelo contêiner. O Compose fornece um PostgreSQL exclusivo e define `_TEST_QUARKUS_DATASOURCE_DEVSERVICES_ENABLED=false`, `_TEST_QUARKUS_DATASOURCE_JDBC_URL`, `_TEST_QUARKUS_DATASOURCE_USERNAME` e `_TEST_QUARKUS_DATASOURCE_PASSWORD`. Se o agente Jenkins roda em contêiner usando o Docker do host, informe o caminho correspondente no host conforme descrito abaixo. Também são necessários os plugins Pipeline, JUnit e GitLab.
 
@@ -171,7 +196,7 @@ A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pi
 
 Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
-Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. O bloco `gitlabCommitStatus` publica no commit o estado da etapa `build`.
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build` e `performance`.
 
 ## Empacotar e configurar
 

@@ -25,6 +25,10 @@ Há várias formas de contribuir com o projeto: enviar código, relatar bugs e p
    ./gradlew spotlessApply
    ./gradlew build
    ./gradlew quarkusIntTest
+   mkdir -p build/reports/k6
+   docker compose -f compose.performance.yaml up -d --build --wait api prometheus
+   docker compose -f compose.performance.yaml run --rm --no-deps k6
+   docker compose -f compose.performance.yaml down --volumes --remove-orphans
    ```
 
 6. Faça commits com mensagens claras e envie a branch ao seu fork:
@@ -40,7 +44,7 @@ Consulte o [README](README.md) para detalhes da configuração local, da arquite
 ## Diretrizes
 
 - Use Google Java Style (dois espaços), aplicado por `./gradlew spotlessApply`.
-- Use imports explícitos e siga as regras de nomenclatura do Checkstyle. `./gradlew check` valida formatação, lint e testes JVM. `./gradlew quarkusIntTest` valida o artefato empacotado; o CI executa ambos e falha quando houver violações.
+- Use imports explícitos e siga as regras de nomenclatura do Checkstyle. `./gradlew check` valida formatação, lint e testes JVM. `./gradlew quarkusIntTest` valida o artefato empacotado; o teste k6 valida os limites de performance e o scrape do Prometheus. O CI executa os três e falha quando houver violações.
 - Mantenha a merge request focada em uma única alteração.
 - Inclua ou atualize testes e documentação quando necessário.
 - Verifique se o pipeline Jenkins concluiu com sucesso.

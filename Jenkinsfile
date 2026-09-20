@@ -54,14 +54,41 @@ pipeline {
                 }
             }
         }
+
+        stage('Performance smoke') {
+            steps {
+                gitlabCommitStatus(name: 'performance') {
+                    sh '''
+                        if [ -n "${CI_HOST_JENKINS_HOME:-}" ]; then
+                            case "$WORKSPACE" in
+                                "$JENKINS_HOME"/*)
+                                    export CI_WORKSPACE="$CI_HOST_JENKINS_HOME/${WORKSPACE#"$JENKINS_HOME"/}"
+                                    ;;
+                                *)
+                                    echo 'WORKSPACE deve estar dentro de JENKINS_HOME para mapear o caminho no host.' >&2
+                                    exit 1
+                                    ;;
+                            esac
+                        fi
+
+                        export CI_UID="$(id -u)" CI_GID="$(id -g)"
+                        export COMPOSE_PROJECT_NAME="bttr-performance-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
+                        mkdir -p build/reports/k6
+                        trap 'docker compose -f compose.performance.yaml down --volumes --remove-orphans' EXIT
+                        docker compose -f compose.performance.yaml up -d --build --wait api prometheus
+                        docker compose -f compose.performance.yaml run --rm -T --no-deps k6
+                    '''
+                }
+            }
+        }
     }
 
     post {
         always {
             junit allowEmptyResults: true,
-                testResults: 'build/test-results/test/*.xml,build/test-results/quarkusIntTest/*.xml'
+                testResults: 'build/test-results/test/*.xml,build/test-results/quarkusIntTest/*.xml,build/reports/k6/junit.xml'
             archiveArtifacts allowEmptyArchive: true,
-                artifacts: 'build/reports/tests/**,build/reports/checkstyle/**'
+                artifacts: 'build/reports/tests/**,build/reports/checkstyle/**,build/reports/k6/**'
         }
     }
 }

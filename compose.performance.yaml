@@ -1,0 +1,112 @@
+name: bttr-performance
+
+services:
+  postgres:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: bttr
+      POSTGRES_USER: bttr
+      POSTGRES_PASSWORD: bttr_performance
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U bttr -d bttr"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  keycloak-db:
+    image: postgres:17.6-alpine
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: keycloak
+      POSTGRES_PASSWORD: keycloak_performance
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U keycloak -d keycloak"]
+      interval: 2s
+      timeout: 5s
+      retries: 30
+
+  mailpit:
+    image: axllent/mailpit:v1.27.8
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4.7
+    command: ["start-dev", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: keycloak_performance
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin_performance
+      KC_HOSTNAME: http://keycloak:8080
+      KC_HEALTH_ENABLED: "true"
+    volumes:
+      - ${CI_WORKSPACE:-.}/infra/keycloak/bttr-realm.json:/opt/keycloak/data/import/bttr-realm.json:ro,z
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+      mailpit:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/9000; printf 'GET /health/ready HTTP/1.0\r\n\r\n' >&3; cat <&3 | grep -q '200 OK'"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  api:
+    build:
+      context: .
+    environment:
+      DATABASE_URL: jdbc:postgresql://postgres:5432/bttr
+      DATABASE_USERNAME: bttr
+      DATABASE_PASSWORD: bttr_performance
+      KEYCLOAK_URL: http://keycloak:8080
+      KEYCLOAK_CLIENT_SECRET: bttr-local-secret
+    depends_on:
+      postgres:
+        condition: service_healthy
+      keycloak:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/localhost/8000; printf 'GET /q/health/ready HTTP/1.0\r\n\r\n' >&3; cat <&3 | grep -q '200 OK'"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  prometheus:
+    image: prom/prometheus:v3.14.0
+    command:
+      - --config.file=/etc/prometheus/prometheus.yml
+      - --storage.tsdb.path=/prometheus
+    volumes:
+      - ${CI_WORKSPACE:-.}/performance/prometheus.yml:/etc/prometheus/prometheus.yml:ro,z
+    depends_on:
+      api:
+        condition: service_healthy
+
+  k6:
+    image: grafana/k6:2.2.0
+    user: "${CI_UID:-1000}:${CI_GID:-1000}"
+    environment:
+      BTTR_API: http://api:8000
+      PROMETHEUS_URL: http://prometheus:9090
+      PERFORMANCE_VUS: "${PERFORMANCE_VUS:-2}"
+      PERFORMANCE_DURATION: "${PERFORMANCE_DURATION:-30s}"
+      K6_WEB_DASHBOARD: "true"
+      K6_WEB_DASHBOARD_EXPORT: /results/report.html
+      K6_WEB_DASHBOARD_PORT: "-1"
+    volumes:
+      - ${CI_WORKSPACE:-.}/performance:/scripts:ro,z
+      - ${CI_WORKSPACE:-.}/build/reports/k6:/results:z
+    depends_on:
+      api:
+        condition: service_healthy
+      prometheus:
+        condition: service_started
+    command: ["run", "/scripts/smoke.js"]

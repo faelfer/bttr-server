@@ -1,6 +1,7 @@
 package br.com.bttr;
 
 import static io.restassured.RestAssured.given;
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.emptyString;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
@@ -23,6 +24,13 @@ class PackagedApplicationIT {
         .body("paths.'/users/sign_up'.post", notNullValue())
         .body("paths.'/skills/create_skill'.post", notNullValue())
         .body("paths.'/times/create_time'.post", notNullValue());
+
+    given()
+        .accept("text/plain")
+        .get("/q/metrics")
+        .then()
+        .statusCode(200)
+        .body(containsString("jvm_memory_used_bytes"));
   }
 
   @Test
