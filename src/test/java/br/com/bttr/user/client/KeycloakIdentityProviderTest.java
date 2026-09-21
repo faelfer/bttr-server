@@ -72,4 +72,36 @@ class KeycloakIdentityProviderTest {
         assertThrows(ApiException.class, () -> provider.authenticate("a@example.com", "wrong"))
             .status);
   }
+
+  @Test
+  void invalidUsernameReturnedByKeycloakHasSpecificMessage() {
+    server.createContext(
+        "/realms/test/protocol/openid-connect/token",
+        exchange -> {
+          byte[] body = "{\"access_token\":\"admin-token\"}".getBytes(StandardCharsets.UTF_8);
+          exchange.sendResponseHeaders(200, body.length);
+          try (var output = exchange.getResponseBody()) {
+            output.write(body);
+          }
+        });
+    server.createContext(
+        "/admin/realms/test/users",
+        exchange -> {
+          byte[] body =
+              "{\"field\":\"username\",\"errorMessage\":\"error-username-invalid-character\"}"
+                  .getBytes(StandardCharsets.UTF_8);
+          exchange.sendResponseHeaders(400, body.length);
+          try (var output = exchange.getResponseBody()) {
+            output.write(body);
+          }
+        });
+
+    ApiException exception =
+        assertThrows(
+            ApiException.class,
+            () -> provider.create("Developer Local", "developer@example.com", "!Dev1234"));
+
+    assertEquals(400, exception.status);
+    assertEquals("nome de usuário contém caracteres inválidos.", exception.getMessage());
+  }
 }

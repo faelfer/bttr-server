@@ -105,8 +105,14 @@ public class KeycloakIdentityProvider implements IdentityProvider {
               : "nome de usuário já existente.");
     }
     if (response.statusCode() == 404) throw ApiException.notFound("usuário");
-    if (response.statusCode() == 400)
+    if (response.statusCode() == 400) {
+      JsonNode error = read(response);
+      if ("username".equals(error.path("field").asText())
+          && "error-username-invalid-character".equals(error.path("errorMessage").asText())) {
+        throw new ApiException(400, "nome de usuário contém caracteres inválidos.");
+      }
       throw new ApiException(400, "dados rejeitados pelo serviço de autenticação.");
+    }
     throw unavailable();
   }
 

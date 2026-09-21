@@ -54,6 +54,43 @@ As migrações rodam automaticamente e o Hibernate valida o esquema. O Compose i
 | Mailpit | http://localhost:8025 |
 | PostgreSQL | `localhost:5432/bttr` — `bttr` / `bttr_local` |
 
+### Massa de dados local
+
+No perfil `dev`, a aplicação usa Datafaker para criar automaticamente uma massa
+determinística depois que o Flyway termina as migrações. O seed padrão contém três
+usuários, cinco habilidades por usuário e vinte registros de tempo por habilidade,
+distribuídos pelos últimos 90 dias. A execução é incremental: reinicializações e hot
+reloads completam apenas os registros ausentes.
+
+Use a primeira conta para acessar a aplicação:
+
+```text
+E-mail: developer1@bttr.local
+Senha:  !Dev1234
+```
+
+As identidades são criadas no Keycloak local e vinculadas ao PostgreSQL; portanto, as
+contas podem autenticar normalmente. O seeder existe somente no build do perfil `dev`,
+fica desabilitado em testes e valida os hosts do PostgreSQL e do Keycloak antes de
+escrever. Por padrão, apenas `localhost` e `127.0.0.1` são aceitos, evitando popular por
+engano um ambiente remoto mesmo que `quarkusDev` receba outra URL.
+
+As opções podem ser ajustadas no `.env`:
+
+| Variável | Padrão | Finalidade |
+| --- | --- | --- |
+| `BTTR_SEED_ENABLED` | `true` | Habilita o seed no perfil local |
+| `BTTR_SEED_RANDOM_SEED` | `42` | Mantém a massa pseudoaleatória reproduzível |
+| `BTTR_SEED_USERS` | `3` | Quantidade de contas locais |
+| `BTTR_SEED_SKILLS_PER_USER` | `5` | Habilidades por conta |
+| `BTTR_SEED_ENTRIES_PER_SKILL` | `20` | Tempos por habilidade |
+| `BTTR_SEED_PASSWORD` | `!Dev1234` | Senha das contas geradas |
+| `BTTR_SEED_RESET` | `false` | Recria os dados de domínio das contas de seed |
+
+Use `BTTR_SEED_RESET=true` somente na inicialização em que desejar descartar e recriar
+habilidades e tempos dos usuários `developerN@bttr.local`; depois retorne a opção para
+`false`. Para executar a aplicação sem massa local, defina `BTTR_SEED_ENABLED=false`.
+
 Essas credenciais e o `start-dev` destinam-se ao ambiente local. A importação do Keycloak só cria o realm quando ele ainda não existe; editar o JSON não altera um realm já importado.
 
 No `.env` de **bttr-client-react**:
