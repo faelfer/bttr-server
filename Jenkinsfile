@@ -107,7 +107,8 @@ pipeline {
                             export CI_UID="$(id -u)" CI_GID="$(id -g)"
                             export COMPOSE_PROJECT_NAME="bttr-sonarqube-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
                             trap 'docker compose -f compose.ci.yaml -f compose.jenkins.yaml down --remove-orphans' EXIT
-                            docker compose -f compose.ci.yaml -f compose.jenkins.yaml run --rm -T --no-deps tests \
+                            # A tarefa sonar depende do teste/JaCoCo e precisa do PostgreSQL do compose.ci.yaml.
+                            docker compose -f compose.ci.yaml -f compose.jenkins.yaml run --rm -T tests \
                                 ./gradlew sonar --no-daemon --console=plain
                         '''
                     }
