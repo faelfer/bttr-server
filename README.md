@@ -302,6 +302,10 @@ na imagem, achados sem correção disponível são mantidos no relatório, mas n
 o build. O OWASP ZAP 2.17.0 importa o contrato OpenAPI e executa passive e active scan
 com a política `Dev CICD`.
 
+O `Dockerfile` fixa o digest da imagem oficial Eclipse Temurin 21 JRE validada
+pelo Trivy. Os módulos Jackson são alinhados pelo BOM `2.21.8` no `build.gradle`,
+incluindo as correções de segurança de `jackson-core` e `jackson-databind`.
+
 O scan ZAP cria uma conta temporária no Keycloak, verifica o token no endpoint de perfil
 e adiciona `Authorization: Token <token>` às requisições. Operações de identidade e a
 exclusão do perfil ficam fora do active scan para preservar a sessão. A conta, as
