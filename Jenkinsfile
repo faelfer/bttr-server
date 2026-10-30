@@ -9,8 +9,8 @@ pipeline {
     parameters {
         string(
             name: 'GITLAB_REGISTRY_IMAGE',
-            defaultValue: params.GITLAB_REGISTRY_IMAGE ?: '',
-            description: 'Caminho da imagem no GitLab Container Registry, sem protocolo nem tag (ex.: registry.example.com/staging/bttr-server).'
+            defaultValue: params.GITLAB_REGISTRY_IMAGE ?: '127.0.0.1:5050/staging/bttr-server',
+            description: 'Caminho da imagem no GitLab Container Registry, sem protocolo nem tag. Registry local: 127.0.0.1:5050/staging/bttr-server.'
         )
     }
 

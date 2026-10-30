@@ -27,17 +27,31 @@ import org.jboss.logging.Logger;
 public class LocalDataSeeder {
   private static final Logger LOG = Logger.getLogger(LocalDataSeeder.class);
 
-  @Inject SeedConfiguration configuration;
-  @Inject IdentityProvider identities;
-  @Inject UserRepository users;
-  @Inject SkillRepository skills;
-  @Inject TimeRepository times;
+  private final SeedConfiguration configuration;
+  private final IdentityProvider identities;
+  private final UserRepository users;
+  private final SkillRepository skills;
+  private final TimeRepository times;
+  private final String databaseUrl;
+  private final String keycloakUrl;
 
-  @ConfigProperty(name = "quarkus.datasource.jdbc.url")
-  String databaseUrl;
-
-  @ConfigProperty(name = "bttr.keycloak.url")
-  String keycloakUrl;
+  @Inject
+  public LocalDataSeeder(
+      SeedConfiguration configuration,
+      IdentityProvider identities,
+      UserRepository users,
+      SkillRepository skills,
+      TimeRepository times,
+      @ConfigProperty(name = "quarkus.datasource.jdbc.url") String databaseUrl,
+      @ConfigProperty(name = "bttr.keycloak.url") String keycloakUrl) {
+    this.configuration = configuration;
+    this.identities = identities;
+    this.users = users;
+    this.skills = skills;
+    this.times = times;
+    this.databaseUrl = databaseUrl;
+    this.keycloakUrl = keycloakUrl;
+  }
 
   void seed(@Observes StartupEvent ignored) {
     if (!configuration.enabled()) {

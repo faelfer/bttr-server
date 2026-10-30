@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 
 final class LocalEnvironmentGuard {
   private static final String JDBC_PREFIX = "jdbc:";
+  private static final String POSTGRESQL = "PostgreSQL";
 
   private LocalEnvironmentGuard() {}
 
@@ -20,15 +21,15 @@ final class LocalEnvironmentGuard {
     if (allowed.isEmpty()) {
       throw new IllegalStateException("bttr.seed.allowed-hosts não pode estar vazio.");
     }
-    verifyHost("PostgreSQL", jdbcHost(databaseUrl), allowed);
+    verifyHost(POSTGRESQL, jdbcHost(databaseUrl), allowed);
     verifyHost("Keycloak", uriHost(keycloakUrl, "Keycloak"), allowed);
   }
 
   private static String jdbcHost(String url) {
     if (url == null || !url.startsWith(JDBC_PREFIX)) {
-      throw invalidUrl("PostgreSQL");
+      throw invalidUrl(POSTGRESQL);
     }
-    return uriHost(url.substring(JDBC_PREFIX.length()), "PostgreSQL");
+    return uriHost(url.substring(JDBC_PREFIX.length()), POSTGRESQL);
   }
 
   private static String uriHost(String url, String service) {

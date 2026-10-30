@@ -22,6 +22,7 @@ import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 @ApplicationScoped
 public class KeycloakIdentityProvider implements IdentityProvider {
+  private static final String USERNAME = "username";
   @Inject ObjectMapper json;
 
   @ConfigProperty(name = "bttr.keycloak.url")
@@ -107,7 +108,7 @@ public class KeycloakIdentityProvider implements IdentityProvider {
     if (response.statusCode() == 404) throw ApiException.notFound("usuário");
     if (response.statusCode() == 400) {
       JsonNode error = read(response);
-      if ("username".equals(error.path("field").asText())
+      if (USERNAME.equals(error.path("field").asText())
           && "error-username-invalid-character".equals(error.path("errorMessage").asText())) {
         throw new ApiException(400, "nome de usuário contém caracteres inválidos.");
       }
@@ -145,7 +146,7 @@ public class KeycloakIdentityProvider implements IdentityProvider {
   public String create(String username, String email, String password) {
     var body =
         Map.of(
-            "username",
+            USERNAME,
             username,
             "email",
             email,
@@ -171,7 +172,7 @@ public class KeycloakIdentityProvider implements IdentityProvider {
             Map.of(
                 "grant_type",
                 "password",
-                "username",
+                USERNAME,
                 email,
                 "password",
                 password,
@@ -199,14 +200,14 @@ public class KeycloakIdentityProvider implements IdentityProvider {
     JsonNode user = read(admin("GET", users() + "/" + encode(subject), null));
     if (!user.path("enabled").asBoolean()) throw new ApiException(401, "usuário desativado.");
     return new Profile(
-        user.path("id").asText(), user.path("username").asText(), user.path("email").asText());
+        user.path("id").asText(), user.path(USERNAME).asText(), user.path("email").asText());
   }
 
   @Override
   public void update(String subject, String username, String email) {
     Profile before = profile(subject);
     var body = new HashMap<String, Object>();
-    body.put("username", username);
+    body.put(USERNAME, username);
     body.put("email", email);
     if (!email.equalsIgnoreCase(before.email())) body.put("emailVerified", false);
     admin("PUT", users() + "/" + encode(subject), body);

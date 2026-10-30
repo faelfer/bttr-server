@@ -216,7 +216,10 @@ de nomenclatura. Código gerado fica fora dessas verificações.
 As verificações também fazem parte de `build` e falham ao encontrar violações.
 O CI somente verifica o código; execute `spotlessApply` antes de fazer commit.
 Relatórios Checkstyle: `build/reports/checkstyle/{main,test}.{html,xml}`.
-O JaCoCo gera os relatórios de cobertura em `build/reports/jacoco/test`.
+O JaCoCo gera os relatórios de cobertura em `build/reports/jacoco/test`, com XML
+em `jacoco.xml` e HTML em `index.html`. A extensão `quarkus-jacoco` combina a
+cobertura dos testes unitários e dos testes `@QuarkusTest`, incluindo as classes
+transformadas pelo CDI e pelo Panache. O SonarQube importa esse XML combinado.
 As ferramentas são baixadas pelo Gradle e não exigem instalação manual no Jenkins.
 
 ```bash
@@ -373,13 +376,19 @@ Para habilitar a publicação:
    como senha, com os escopos `read_registry` e `write_registry`, conforme a
    [documentação de autenticação do GitLab](https://docs.gitlab.com/user/packages/container_registry/authenticate_with_container_registry/).
    O plugin **Credentials Binding** precisa estar instalado para o `withCredentials`.
-3. Execute o job com o parâmetro `GITLAB_REGISTRY_IMAGE` contendo o caminho completo,
-   por exemplo `registry.example.com/staging/bttr-server`, sem `https://` nem tag.
+3. O parâmetro `GITLAB_REGISTRY_IMAGE` usa por padrão
+   `127.0.0.1:5050/staging/bttr-server`, caminho do Container Registry local.
+   Para outro registry, informe o caminho completo, sem protocolo nem tag.
    O último valor informado é preservado como padrão para os próximos builds, incluindo
    os disparados por webhook. O pipeline falha com uma mensagem de configuração se ele
    estiver vazio.
 
-O endpoint do registry deve estar acessível pelo agente Jenkins e pelo daemon Docker.
+O registry local é publicado em `127.0.0.1:5050` e usa HTTP, com acesso restrito ao host.
+O Jenkins em contêiner usa o socket Docker do host; os comandos de login e push
+acessam o registry por meio desse daemon. Agentes com outro daemon Docker precisam
+de um endereço de registry acessível a partir dele.
+
+O endpoint do registry deve estar acessível pelo daemon Docker usado pelo agente Jenkins.
 Na instalação local, utilize o hostname e a porta do **Container Registry**, que podem
 ser diferentes dos endereços HTTP e SSH do GitLab. Se o registry usa certificado de
 uma CA privada, configure a confiança nessa CA no agente e no daemon Docker.
