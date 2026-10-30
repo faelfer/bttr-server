@@ -6,6 +6,14 @@ pipeline {
         skipDefaultCheckout(true)
     }
 
+    parameters {
+        string(
+            name: 'GITLAB_REGISTRY_IMAGE',
+            defaultValue: params.GITLAB_REGISTRY_IMAGE ?: '',
+            description: 'Caminho da imagem no GitLab Container Registry, sem protocolo nem tag (ex.: registry.example.com/staging/bttr-server).'
+        )
+    }
+
     triggers {
         gitlab(
             triggerOnPush: true,
@@ -172,6 +180,45 @@ pipeline {
                             export COMPOSE_PROJECT_NAME="bttr-security-$(printf '%s' "$JOB_NAME" | cksum | cut -d ' ' -f 1)-$BUILD_NUMBER"
                             export BTTR_API_IMAGE="bttr-server-security:$BUILD_NUMBER"
                             ./scripts/security.sh
+                        '''
+                    }
+                }
+            }
+        }
+
+        stage('Build and publish Docker image') {
+            steps {
+                gitlabCommitStatus(name: 'container-registry') {
+                    withCredentials([usernamePassword(
+                        credentialsId: 'gitlab-container-registry',
+                        usernameVariable: 'REGISTRY_USERNAME',
+                        passwordVariable: 'REGISTRY_PASSWORD'
+                    )]) {
+                        sh '''
+                            set +x
+                            set -eu
+                            : "${GITLAB_REGISTRY_IMAGE:?Configure o parametro GITLAB_REGISTRY_IMAGE com o caminho do Container Registry do projeto.}"
+
+                            registry="${GITLAB_REGISTRY_IMAGE%%/*}"
+                            revision="$(git rev-parse HEAD)"
+                            image="$GITLAB_REGISTRY_IMAGE:$revision-$BUILD_NUMBER"
+
+                            DOCKER_CONFIG="$(mktemp -d)"
+                            export DOCKER_CONFIG
+                            cleanup() {
+                                status=$?
+                                trap - EXIT
+                                rm -rf "$DOCKER_CONFIG"
+                                docker image rm "$image" >/dev/null 2>&1 || true
+                                exit "$status"
+                            }
+                            trap cleanup EXIT
+
+                            docker build --tag "$image" .
+                            printf '%s' "$REGISTRY_PASSWORD" |
+                                docker login "$registry" --username "$REGISTRY_USERNAME" --password-stdin
+                            docker push "$image"
+                            echo "Imagem publicada: $image"
                         '''
                     }
                 }

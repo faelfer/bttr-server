@@ -357,7 +357,34 @@ A imagem oficial `jenkins/jenkins` não inclui Docker CLI. Para executar este pi
 
 Valide `docker compose version` e `docker info` **dentro do agente**, como o usuário que executa os jobs. O acesso ao socket permite que os jobs controlem o Docker do host; use esse agente apenas para pipelines confiáveis. Veja a [documentação de Jenkins com Docker](https://www.jenkins.io/doc/book/installing/docker/) para construir a imagem do agente. O pipeline verifica essas dependências antes de iniciar os serviços de teste.
 
-Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `mock-api`, `sonarqube`, `performance` e `security`.
+Após todas as verificações, o stage **Build and publish Docker image** constrói a
+imagem da aplicação com o `Dockerfile` da raiz, reutilizando `build/quarkus-app`, e
+publica no GitLab Container Registry com a tag `<SHA-do-commit>-<BUILD_NUMBER>`.
+Falhas no build, na autenticação ou no push interrompem o pipeline. A configuração
+Docker de autenticação é temporária e removida ao terminar; a tag local também é
+removida depois da tentativa de publicação.
+
+Para habilitar a publicação:
+
+1. Habilite o **Container Registry** no projeto GitLab e copie o caminho da imagem
+   exibido em **Deploy > Container Registry**.
+2. No Jenkins, crie uma credencial **Username with password** com o ID
+   `gitlab-container-registry`. Use o usuário de um deploy token do projeto e o token
+   como senha, com os escopos `read_registry` e `write_registry`, conforme a
+   [documentação de autenticação do GitLab](https://docs.gitlab.com/user/packages/container_registry/authenticate_with_container_registry/).
+   O plugin **Credentials Binding** precisa estar instalado para o `withCredentials`.
+3. Execute o job com o parâmetro `GITLAB_REGISTRY_IMAGE` contendo o caminho completo,
+   por exemplo `registry.example.com/staging/bttr-server`, sem `https://` nem tag.
+   O último valor informado é preservado como padrão para os próximos builds, incluindo
+   os disparados por webhook. O pipeline falha com uma mensagem de configuração se ele
+   estiver vazio.
+
+O endpoint do registry deve estar acessível pelo agente Jenkins e pelo daemon Docker.
+Na instalação local, utilize o hostname e a porta do **Container Registry**, que podem
+ser diferentes dos endereços HTTP e SSH do GitLab. Se o registry usa certificado de
+uma CA privada, configure a confiança nessa CA no agente e no daemon Docker.
+
+Para disparar builds em pushes e merge requests e exibir o resultado no GitLab, habilite a integração Jenkins em **Settings > Integrations > Jenkins** no projeto e configure a conexão correspondente no Jenkins. Execute o job manualmente uma vez para o Jenkins registrar os gatilhos definidos no arquivo. Os blocos `gitlabCommitStatus` publicam no commit os estados das etapas `build`, `mock-api`, `sonarqube`, `performance`, `security` e `container-registry`.
 
 ## Empacotar e configurar
 
