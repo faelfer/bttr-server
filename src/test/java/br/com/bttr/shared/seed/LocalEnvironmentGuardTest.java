@@ -58,11 +58,12 @@ class LocalEnvironmentGuardTest {
 
   @Test
   void rejectsAllowListsContainingOnlyWhitespace() {
+    List<String> blankHosts = List.of(" ", "");
     assertThrows(
         IllegalStateException.class,
         () ->
             LocalEnvironmentGuard.verify(
-                "jdbc:postgresql://localhost/bttr", "http://localhost", List.of(" ", "")));
+                "jdbc:postgresql://localhost/bttr", "http://localhost", blankHosts));
   }
 
   @ParameterizedTest

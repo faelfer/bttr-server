@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -14,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 class SeedDataGeneratorTest {
   private static final Instant REFERENCE = Instant.parse("2026-09-21T00:00:00Z");
+  private static final Pattern DEVELOPER_USERNAME = Pattern.compile("developer[0-9]+");
 
   @Test
   void generatesDeterministicAndValidData() {
@@ -48,19 +50,17 @@ class SeedDataGeneratorTest {
   @ParameterizedTest
   @CsvSource({"0,3,4", "26,3,4", "2,0,4", "2,51,4", "2,3,-1", "2,3,501", "25,50,81"})
   void rejectsOutOfRangeSizesAndExcessiveTotalHistory(int users, int skills, int entries) {
+    var invalid = new Configuration(users, skills, entries, "secret", 42);
     assertThrows(
-        IllegalArgumentException.class,
-        () ->
-            SeedDataGenerator.generate(
-                new Configuration(users, skills, entries, "secret", 42), REFERENCE));
+        IllegalArgumentException.class, () -> SeedDataGenerator.generate(invalid, REFERENCE));
   }
 
   @ParameterizedTest
   @ValueSource(strings = {"", " ", "\t"})
   void rejectsBlankPasswords(String password) {
+    var invalid = new Configuration(1, 1, 1, password, 42);
     assertThrows(
-        IllegalArgumentException.class,
-        () -> SeedDataGenerator.generate(new Configuration(1, 1, 1, password, 42), REFERENCE));
+        IllegalArgumentException.class, () -> SeedDataGenerator.generate(invalid, REFERENCE));
   }
 
   @ParameterizedTest
@@ -72,7 +72,7 @@ class SeedDataGeneratorTest {
 
     assertEquals(users, generated.size());
     for (var user : generated) {
-      assertTrue(user.username().matches("developer[0-9]+"));
+      assertTrue(DEVELOPER_USERNAME.matcher(user.username()).matches());
       assertEquals(skills, user.skills().size());
       for (var skill : user.skills()) {
         assertTrue(skill.name().length() <= 120);

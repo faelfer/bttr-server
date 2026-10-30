@@ -114,7 +114,7 @@ class KeycloakIdentityProviderTest {
   }
 
   @Test
-  void authenticatesWithEncodedCredentialsAndRetrievesTheProfile() throws Exception {
+  void authenticatesWithEncodedCredentialsAndRetrievesTheProfile() {
     respond("/realms/test/protocol/openid-connect/token", 200, "{\"access_token\":\"user-token\"}");
     respond(
         "/realms/test/protocol/openid-connect/userinfo",
